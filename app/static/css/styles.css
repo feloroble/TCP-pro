@@ -1,0 +1,8 @@
+html, body {
+    height: 100%; /* Asegura que el cuerpo y el HTML ocupen toda la altura */
+}
+
+main {
+    flex-grow: 1; /* El contenido principal crecerá para ocupar el espacio disponible */
+}
+

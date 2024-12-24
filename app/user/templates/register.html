@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <!-- Enlace a Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Enlace a los estilos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/styles_registro.css') }}"> 
+</head>
+<body>
+    <div class="register-container">
+        <h3 class="text-center mb-4">Registro de Usuario</h3>
+        <form method="POST" action="{{ url_for('user.registro') }}" id="registerForm">
+            <!-- Nombre -->
+            <div class="mb-3">
+                <label for="firstName" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Ingresa tu nombre" required>
+                <div class="form-alert text-danger">El nombre es obligatorio.</div>
+            </div>
+            <!-- Apellidos -->
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Apellidos</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Ingresa tus apellidos" required>
+                <div class="form-alert text-danger">Los apellidos son obligatorios.</div>
+            </div>
+            <!-- Correo -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                <div class="form-alert text-danger">Ingresa un correo válido.</div>
+            </div>
+            <!-- telefono -->
+            <div class="mb-3">
+              <label for="phone" class="form-label">Teléfono</label>
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ingresa tu número de teléfono" required>
+              <div class="form-alert text-danger">Ingresa un número de teléfono válido.</div>
+          </div>
+            <!-- Usuario -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Elige un nombre de usuario" required>
+                <div class="form-alert text-danger">El nombre de usuario es obligatorio.</div>
+            </div>
+            <!-- Contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Elige una contraseña" required>
+                <div class="form-alert text-danger">La contraseña es obligatoria.</div>
+            </div>
+            <!-- Repetir Contraseña -->
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Repite la contraseña" required>
+                <div class="form-alert text-danger">Las contraseñas no coinciden.</div>
+            </div>
+            <!-- Botón de Registro -->
+            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+            <div id="generalError" class="form-alert text-danger mt-2">Por favor, corrige los errores antes de continuar.</div>
+        </form>
+		{% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alert alert-danger">
+              <ul>
+               {% for category, message in messages %}
+                 <li>{{ message }}</li>
+               {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
+        <!-- Enlace al inicio de sesión -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('user.login') }}">¿Ya tienes una cuenta? Inicia sesión</a>
+        </div>
+    </div>
+
+    <!-- Enlace a Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Enlace al archivo de scripts -->
+    
+</body>
+</html>

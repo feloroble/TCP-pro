@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <!-- Enlace a Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Enlace a los estilos -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/styles_login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h3 class="text-center mb-4">Iniciar Sesión</h3>
+        <form id="loginForm" method="POST" action="{{ url_for('user.login') }}">
+            <!-- Usuario o Correo -->
+            <div class="mb-3">
+                <label for="userOrEmail" class="form-label">Usuario o Correo Electrónico</label>
+                <input type="text" class="form-control" id="userOrEmail" name="userOrEmail" placeholder="Ingresa tu usuario o correo" required>
+                <div class="form-alert text-danger">Ingresa un usuario o correo válido.</div>
+            </div>
+            <!-- Contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control"  id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                <div class="form-alert text-danger">La contraseña es obligatoria.</div>
+            </div>
+            <!-- Botón de Iniciar Sesión -->
+            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            <div id="generalError" class="form-alert text-danger mt-2">Por favor, corrige los errores antes de continuar.</div>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mt-2">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+        <!-- Enlaces -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('user.registro') }}">¿No tienes cuenta? Regístrate</a><br>
+            <a href="{{ url_for('user.reset_password') }}">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>
+
+    <!-- Enlace a Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Enlace al archivo de scripts -->
+    
+</body>
+</html>

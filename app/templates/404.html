@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block titulo %} NO ENCONTRADA {% endblock %}
+
+
+{% block content %}
+<!-- ====== Error 404 Start ====== -->
+<section class="ud-404">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="ud-404-wrapper">
+            <div class="ud-404-content">
+              <h2 class="ud-404-title">Error 404.</h2>
+              <h5 class="ud-404-subtitle">
+                La página que estás buscando no existe.
+              </h5>
+              <ul class="ud-404-links">
+                <li>
+                  <a href="{{ url_for('main.index') }}">Home</a>
+                </li>
+               </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ====== Error 404 End ====== -->
+  {% endblock %}
