@@ -84,7 +84,13 @@
                   </li>
                 </ul>
               </div>
-
+              {% if g.user %}
+              <div class="navbar-btn d-none d-sm-inline-block">
+                  <span class="navbar-btn d-none d-sm-inline-block">Bienvenido, {{ g.user.first_name }} {{ g.user.last_name }}</span>
+                  <a class="ud-main-btn ud-white-btn" href="{{ url_for('user.logout_user') }}">
+                  Cerrar Sesión</a>
+              </div>
+              {% else %}
               <div class="navbar-btn d-none d-sm-inline-block">
                 <a href="{{ url_for('user.login') }}" class="ud-main-btn ud-login-btn">
                   Iniciar 
@@ -93,6 +99,8 @@
                   Registro
                 </a>
               </div>
+              {% endif %}
+
             </nav>
           </div>
         </div>

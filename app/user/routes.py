@@ -82,7 +82,7 @@ def login():
             flash('Usuario o contraseña incorrectos..', 'danger')
             return render_template('login.html')
 
-        if not user.set_password(password):
+        if not user.check_password(password):
             # Contraseña incorrecta
             flash('Usuario o contraseña incorrectos.', 'danger')
             return render_template('login.html')
@@ -114,3 +114,11 @@ def logout_user():
     session.clear()
     flash('Has cerrado sesión.', 'info')
     return redirect(url_for('main.index'))
+
+@user_bp.before_app_request
+def load_logged_in_user():
+    user_id = session.get('user_id')
+    if user_id:
+        g.user = User.get_or_none(User.id == user_id)
+    else:
+        g.user = None
