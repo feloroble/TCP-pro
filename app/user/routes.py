@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from app.user import user_bp
-
+import re
 
 
 #registro de usuarios
@@ -20,7 +20,9 @@ def registro():
          
         # Validar datos
         errors = []
-
+        # Regla de contraseña compleja
+        password_regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+       
         if not first_name or not last_name:
             errors.append("El nombre y los apellidos son obligatorios.")
         
@@ -34,7 +36,14 @@ def registro():
         
         if not phone or not phone.isdigit():
             errors.append("El teléfono debe ser un número válido.")
+        elif User.select().where(User.phone == phone).exists():
+            errors.append("ERl telefono ya esta en uso.")
+
         
+        if not re.match(password_regex, password):
+           errors.append('La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.')
+        
+
         if not password:
             errors.append("La contraseña es obligatoria.")
         elif password != confirm_password:
