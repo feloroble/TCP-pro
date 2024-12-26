@@ -1,0 +1,28 @@
+/* Fondo del menú de navegación */
+.navbar {
+    background-color: #6171fa; /* Azul fuerte */
+    border-bottom: 3px solid #b1c5da; /* Línea inferior */
+}
+
+/* Color de texto en enlaces */
+.navbar .nav-link {
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+/* Hover en los enlaces */
+.navbar .nav-link:hover {
+    color: #ffd700; /* Amarillo brillante */
+}
+
+/* Marca del proyecto */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Botón toggler */
+.navbar-toggler {
+    border-color: #ffffff;
+}

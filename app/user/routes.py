@@ -21,7 +21,7 @@ def registro():
         # Validar datos
         errors = []
         # Regla de contraseña compleja
-        password_regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+        password_regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*.?&]{8,}$'
        
         if not first_name or not last_name:
             errors.append("El nombre y los apellidos son obligatorios.")
@@ -100,7 +100,7 @@ def login():
         session['user_id'] = user.id
         session['username'] = user.username
         flash('Inicio de sesión exitoso.', 'success')
-        return redirect(url_for('user.user'))
+        return redirect(url_for('main.panel_user'))
 
         
 
@@ -112,11 +112,6 @@ def login():
 def reset_password():
 
     return render_template('reset_password.html')
-# panel de usuario
-@user_bp.route('/user')
-def user():
-    # Lógica para listar clientes
-    return render_template('panel.html')
 
 @user_bp.route('/logout')
 def logout_user():

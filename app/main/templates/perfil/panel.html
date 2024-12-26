@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block titulo %} PERFIL {% endblock %}
+
+{% block content %}
+<section id="features" class="ud-features">
+    <div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1 class="text-primary">Bienvenido, {{ g.user.first_name }} {{ g.user.last_name }}</h1>
+            <p class="text-secondary">Este es tu panel de usuario. Desde aquí puedes gestionar tus configuraciones y actividades.</p>
+        </div>
+    </div>
+
+    <!-- Información general del usuario -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Información Personal</h5>
+                    <p class="card-text"><strong>Nombre:</strong> {{ g.user.first_name }} {{ g.user.last_name }}</p>
+                    <p class="card-text"><strong>Correo:</strong> {{ g.user.email }}</p>
+                    <p class="card-text"><strong>Teléfono:</strong> {{ g.user.phone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces rápidos -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Opciones rápidas</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-primary">Actualizar perfil</a></li>
+                        <li><a href="#" class="text-primary">Cambiar contraseña</a></li>
+                        <li><a href="#" class="text-primary">Ver mis actividades</a></li>
+                        <li><a href="#" class="text-primary">Eliminar cuenta</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de actividades recientes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Actividades recientes</h5>
+                    <table class="table table-striped">
+                        <thead class="table-primary">
+                            <tr>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Actividad</th>
+                                <th scope="col">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-12-20</td>
+                                <td>Inicio de sesión</td>
+                                <td class="text-success">Completado</td>
+                            </tr>
+                            <tr>
+                                <td>2024-12-19</td>
+                                <td>Actualización de perfil</td>
+                                <td class="text-warning">Pendiente</td>
+                            </tr>
+                            <tr>
+                                <td>2024-12-18</td>
+                                <td>Solicitud de restablecimiento de contraseña</td>
+                                <td class="text-danger">Fallido</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
+{% endblock %}
