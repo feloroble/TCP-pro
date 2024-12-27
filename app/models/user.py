@@ -1,7 +1,7 @@
 
-from peewee import Model, CharField, AutoField
-from app import db
+from peewee import  CharField, AutoField,Model
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.database import db
 
 class BaseModel(Model):
     class Meta:

@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, url_for, redirect, flash, session, g, request,session
+from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User
-from app.user import user_bp
 import re
+from app.models.user import User
 
+user_bp = Blueprint('user', __name__, template_folder='../../templates/user', static_folder='../../static')
 
-#registro de usuarios
 @user_bp.route('/registro',methods = ('GET', 'POST'))
 def registro():
      if request.method == 'POST':

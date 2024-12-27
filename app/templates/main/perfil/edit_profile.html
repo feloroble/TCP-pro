@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block titulo %} EDITAR PERFIL {% endblock %}
+
+{% block content %}
+<section id="features" class="ud-features">
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Editar Perfil</h2>
+
+    <!-- Mensajes de flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form id="editProfileForm" method="POST" action="{{ url_for('main.update_profile') }}">
+        <div class="row">
+            <!-- Nombre -->
+            <div class="col-md-6 mb-3">
+                <label for="firstName" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="{{ user.first_name }}" required>
+            </div>
+            <!-- Apellidos -->
+            <div class="col-md-6 mb-3">
+                <label for="lastName" class="form-label">Apellidos</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="{{ user.last_name }}" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Correo Electrónico -->
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+            <!-- Teléfono -->
+            <div class="col-md-6 mb-3">
+                <label for="phone" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone }}" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Nombre de Usuario -->
+            <div class="col-md-6 mb-3">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+            </div>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

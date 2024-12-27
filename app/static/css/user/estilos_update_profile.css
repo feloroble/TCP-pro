@@ -1,0 +1,16 @@
+.container {
+    max-width: 600px;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form button {
+    background-color: #0056b3;
+    border: none;
+}
+
+form button:hover {
+    background-color: #003f7f;
+}
