@@ -9,3 +9,11 @@ DATABASE = {
         'host': 'localhost',
         'port': 3306,
     }
+
+MAIL = {
+    'mail_server':'smtp.tecnotactil.com',
+    'mail_port': 587,
+    'mail_use_TLS': True,
+    'mail_usename':'tcp@tecnotactil.com',
+    'mail_password':'[6yo13}HtQU8'
+}

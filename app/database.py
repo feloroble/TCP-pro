@@ -1,4 +1,4 @@
-from peewee import SqliteDatabase, MySQLDatabase, Model
+from peewee import  MySQLDatabase, Model
 
 from app.config import DATABASE
 

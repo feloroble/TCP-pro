@@ -43,6 +43,15 @@
                         <li><a href="  {{ url_for('main.update_profile') }}" class="text-primary">Actualizar perfil</a></li>
                         <li><a href="#" class="text-primary">Cambiar contraseña</a></li>
                         <li><a href="#" class="text-primary">Ver mis actividades</a></li>
+                        {% if g.user.rol == 'administrador' %}
+                        <li><a href="{{ url_for('user.admin_panel') }}" class="text-primary">Panel del administrador</a></li>
+                        {% endif %}
+                        {% if g.user.rol == 'Usuario TCP' %}
+                        <li><a href="#" class="text-primary">Panel del Negocio TCP</a></li>
+                        {% endif %}
+                        {% if g.user.rol == 'estadístico' %}
+                        <li><a href="#" class="text-primary">Panel del Estadistico</a></li>
+                        {% endif %}
                         <li><a href="#" class="text-primary">Eliminar cuenta</a></li>
                     </ul>
                 </div>

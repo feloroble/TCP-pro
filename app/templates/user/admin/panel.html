@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Panel de Administración</h2>
+    <div class="table-responsive mt-4">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Rol Actual</th>
+                    <th>Nuevo Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.rol }}</td>
+                    <form method="POST" action="{{ url_for('user.admin_panel') }}">
+                        <td>
+                            <select class="form-select" name="new_role">
+                                <option value="usuario" {% if user.rol == "usuario" %}selected{% endif %}>Usuario</option>
+                                <option value="administrador" {% if user.rol == "administrador" %}selected{% endif %}>Administrador</option>
+                                <option value="usuario TCP" {% if user.rol == "usuario TCP" %}selected{% endif %}>Usuario TCP</option>
+                                <option value="estadístico" {% if user.rol == "estadístico" %}selected{% endif %}>Estadístico</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button class="btn btn-primary" type="submit">Actualizar Rol</button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

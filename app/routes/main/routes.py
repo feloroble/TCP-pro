@@ -1,7 +1,6 @@
 from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
-from werkzeug.security import generate_password_hash, check_password_hash
 from .. import login_required
-from app.models.user import User
+
 
 
 main_bp = Blueprint('main', __name__, template_folder='../../templates/main', static_folder='../../static')

@@ -15,6 +15,7 @@ class User(BaseModel):
     username = CharField(max_length=50, unique=True)
     phone = CharField(max_length=15, unique=True)  # Nuevo campo
     password = CharField(max_length=255)
+    rol = CharField(max_length=20, default='usuario')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

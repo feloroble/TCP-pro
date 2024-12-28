@@ -2,6 +2,7 @@ from flask import render_template, request, url_for, redirect, flash, session, g
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from app.models.user import User
+from .. import login_required, admin_required
 
 user_bp = Blueprint('user', __name__, template_folder='../../templates/user', static_folder='../../static')
 
@@ -125,3 +126,26 @@ def load_logged_in_user():
         g.user = User.get_or_none(User.id == user_id)
     else:
         g.user = None
+
+@user_bp.route('/admin', methods=['GET', 'POST'])
+@login_required
+@admin_required
+
+def admin_panel():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        new_role = request.form.get('new_role')
+
+        # Verificar si el usuario existe
+        user = User.get_or_none(User.id == user_id)
+        if user:
+            user.rol = new_role
+            user.save()
+            flash(f"El rol del usuario {user.username} ha sido actualizado a {new_role}.", "success")
+        else:
+            flash("El usuario especificado no existe.", "danger")
+        return redirect(url_for('user.admin_panel'))
+
+    # Obtener todos los usuarios para mostrarlos en el panel
+    users = User.select()
+    return render_template('admin/panel.html', users=users)
