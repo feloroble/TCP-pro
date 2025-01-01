@@ -1,5 +1,5 @@
-from app import db
-from app.model.model_user import User
+from app.database import db
+from app.models.user import PasswordResetToken
 
 db.connect()
-db.create_tables([User])
+db.create_tables([PasswordResetToken])

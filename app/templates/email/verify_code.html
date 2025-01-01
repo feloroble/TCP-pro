@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block titulo %} RESTABLECER  {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Restablecer Contraseña</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="token">Código de Restablecimiento</label>
+            <input type="text" class="form-control" id="token" name="token" required>
+        </div>
+        <div class="form-group">
+            <label for="new_password">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="new_password" name="new_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Restablecer Contraseña</button>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mt-2">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}

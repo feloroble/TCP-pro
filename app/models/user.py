@@ -1,5 +1,6 @@
 
-from peewee import  CharField, AutoField,Model
+from peewee import  CharField, AutoField,Model,ForeignKeyField, DateTimeField
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import db
 
@@ -22,4 +23,11 @@ class User(BaseModel):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+class PasswordResetToken(BaseModel):
+    user = ForeignKeyField(User, backref='reset_tokens', on_delete='CASCADE')
+    token = CharField(unique=True)
+    created_at = DateTimeField(default=datetime.now)
+    expires_at = DateTimeField(default=lambda: datetime.now() + timedelta(hours=1))  # 1 hora de validez
+
 

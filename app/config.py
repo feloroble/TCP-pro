@@ -1,4 +1,4 @@
-
+import os
 
 SECRET_KEY = 'fgdsgdfgdfgdf7567ñk7m56km757585648564864856484868*/8*66658665'
 DATABASE = {
@@ -15,5 +15,7 @@ MAIL = {
     'mail_port': 587,
     'mail_use_TLS': True,
     'mail_usename':'tcp@tecnotactil.com',
-    'mail_password':'[6yo13}HtQU8'
+    'mail_password':'[6yo13}HtQU8',
+    'mail_default_sender':'tcp@tecnotactil.com'
 }
+

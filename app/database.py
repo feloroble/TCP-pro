@@ -17,10 +17,10 @@ class BaseModel(Model):
 
 # Función para inicializar la base de datos
 def init_db():
-    from app.models.user import User  # Importar modelos
+    from app.models.user import User , PasswordResetToken # Importar modelos
     
 
     # Crear las tablas si no existen
     db.connect()
-    db.create_tables([User])
+    db.create_tables([User],[PasswordResetToken])
     db.close()
