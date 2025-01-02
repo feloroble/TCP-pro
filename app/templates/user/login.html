@@ -24,17 +24,17 @@
             <div class="mb-3">
                 <label for="userOrEmail" class="form-label">Usuario o Correo Electrónico</label>
                 <input type="text" class="form-control" id="userOrEmail" name="userOrEmail" placeholder="Ingresa tu usuario o correo" required>
-                <div class="form-alert text-danger">Ingresa un usuario o correo válido.</div>
+                
             </div>
             <!-- Contraseña -->
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" class="form-control"  id="password" name="password" placeholder="Ingresa tu contraseña" required>
-                <div class="form-alert text-danger">La contraseña es obligatoria.</div>
+                
             </div>
             <!-- Botón de Iniciar Sesión -->
             <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
-            <div id="generalError" class="form-alert text-danger mt-2">Por favor, corrige los errores antes de continuar.</div>
+           
         </form>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

@@ -1,4 +1,7 @@
+from pkgutil import get_data
 from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+
+from app.models.user import Operation
 from .. import login_required
 
 
@@ -40,6 +43,8 @@ def update_profile():
         try:
             user.save()  # Guardar cambios en la base de datos
             flash('Perfil actualizado con éxito', 'success')
+            session['user_id'] = user.id
+            Operation.create(user=user, event_type='update_profile', description='Perfil actualizado.')
             return redirect(url_for('main.panel_user'))
         except Exception as e:
             flash('Error al actualizar el perfil: {}'.format(e), 'danger')

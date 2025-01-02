@@ -1,9 +1,10 @@
-from datetime import datetime
-import uuid
-from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+
+
+from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-from app.models.user import User, PasswordResetToken
+from app.models import user
+from app.models.user import Operation, User
 from app.email_service import generate_reset_token, send_email, verify_reset_token
 from .. import login_required, admin_required
 
@@ -103,6 +104,8 @@ def login():
         session['user_id'] = user.id
         session['username'] = user.username
         flash('Inicio de sesión exitoso.', 'success')
+        session['user_id'] = user.id
+        Operation.create(user=user, event_type='login', description='Inicio de sesión exitoso.')
         return redirect(url_for('main.panel_user'))
 
         
@@ -151,6 +154,8 @@ def token_password(token):
             user.set_password(new_password)  # Asegúrate de tener un método para encriptar la contraseña
             user.save()
             flash("Tu contraseña ha sido actualizada exitosamente.", "success")
+            session['user_id'] = user.id
+            Operation.create(user=user, event_type='rest_password', description='Su contraseña fue restablecida de forma satisfactoria.')
             return redirect(url_for('user.login'))
     
     return render_template('update_password.html', token=token)
@@ -160,9 +165,25 @@ def token_password(token):
 
 @user_bp.route('/logout')
 def logout_user():
-    session.clear()
-    flash('Has cerrado sesión.', 'info')
-    return redirect(url_for('main.index'))
+    
+    if 'user_id' in session:
+        # Registrar el evento de cierre de sesión
+        Operation.create(
+            user=session['user_id'],  # Suponiendo que user_id es el ID del usuario autenticado
+            event_type='logout',
+            description='Cierre de sesión exitoso.'
+        )
+
+        session.clear()
+
+        flash('Has cerrado sesión exitosamente.', 'success')
+        return redirect(url_for('main.index'))
+    else:
+        flash('No estabas autenticado.', 'warning')
+        return redirect(url_for('main.index'))
+
+
+   
 
 @user_bp.before_app_request
 def load_logged_in_user():
@@ -189,6 +210,21 @@ def send_notification():
     send_email(subject, recipients, template, **kwargs)
     return "Correo enviado con éxito."
 
+@user_bp.route('/operations/latest', methods=['GET'])
+def get_latest_operations():
+        if not g.user:
+           return jsonify({'error': 'Unauthorized'}), 401
+
+        operations = Operation.select().where(Operation.user == g.user).order_by(Operation.created_at.desc()).limit(10)
+        operations_data = [
+        {
+            'type': op.event_type,
+            'description': op.description,
+            'created_at': op.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for op in operations
+    ]
+        return jsonify(operations_data)
 
 
 

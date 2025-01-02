@@ -41,13 +41,12 @@
                     <h5 class="card-title">Opciones rápidas</h5>
                     <ul class="list-unstyled">
                         <li><a href="  {{ url_for('main.update_profile') }}" class="text-primary">Actualizar perfil</a></li>
-                        <li><a href="#" class="text-primary">Cambiar contraseña</a></li>
-                        <li><a href="#" class="text-primary">Ver mis actividades</a></li>
+                        <li><a href="{{ url_for('user.reset_password') }}" class="text-primary">Restablecer contraseña</a></li>
                         {% if g.user.rol == 'administrador' %}
                         <li><a href="{{ url_for('user.admin_panel') }}" class="text-primary">Panel del administrador</a></li>
                         {% endif %}
-                        {% if g.user.rol == 'Usuario TCP' %}
-                        <li><a href="#" class="text-primary">Panel del Negocio TCP</a></li>
+                        {% if g.user.rol == 'usuario TCP' %}
+                        <li><a href="{{ url_for('tcp.panel_tcp') }}" class="text-primary">Panel del Negocio TCP</a></li>
                         {% endif %}
                         {% if g.user.rol == 'estadístico' %}
                         <li><a href="#" class="text-primary">Panel del Estadistico</a></li>
@@ -64,37 +63,31 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Actividades recientes</h5>
-                    <table class="table table-striped">
-                        <thead class="table-primary">
+                    <h5 class="card-title">Últimas Operaciones</h5>
+                    <select id="event-filter">
+                        <option value="all">Todos</option>
+                        <option value="login">Inicio de sesión</option>
+                        <option value="update_profile">Actualización de perfil</option>
+                        <option value="purchase">Compra</option>
+                    </select>
+                    <table id="operations-table" class="table table-striped">
+                        <thead>
                             <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Actividad</th>
-                                <th scope="col">Estado</th>
+                                <th>Evento</th>
+                                <th>Descripción</th>
+                                <th>Fecha y Hora</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>2024-12-20</td>
-                                <td>Inicio de sesión</td>
-                                <td class="text-success">Completado</td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-19</td>
-                                <td>Actualización de perfil</td>
-                                <td class="text-warning">Pendiente</td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-18</td>
-                                <td>Solicitud de restablecimiento de contraseña</td>
-                                <td class="text-danger">Fallido</td>
-                            </tr>
+                            <!-- Se llenará dinámicamente -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+    
     </div>
 </section>
+<script src="{{ url_for('static', filename='js/user/profile.js') }}"></script>
 {% endblock %}

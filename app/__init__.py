@@ -30,8 +30,10 @@ def create_app():
     # Registrar Blueprints
     from app.routes.user.routes import user_bp
     from app.routes.main.routes import main_bp
+    from app.routes.tcp.routes import tcp_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp, url_prefix='/user')
+    app.register_blueprint(tcp_bp, url_prefix='/tcp')
     
     return app
     

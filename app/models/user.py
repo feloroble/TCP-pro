@@ -1,12 +1,10 @@
 
-from peewee import  CharField, AutoField,Model,ForeignKeyField, DateTimeField
+from peewee import  CharField, AutoField,Model,ForeignKeyField, DateTimeField, TextField
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.database import db
+from app.database import  BaseModel
 
-class BaseModel(Model):
-    class Meta:
-        database = db
+
 
 class User(BaseModel):
     id = AutoField(primary_key=True)
@@ -30,4 +28,16 @@ class PasswordResetToken(BaseModel):
     created_at = DateTimeField(default=datetime.now)
     expires_at = DateTimeField(default=lambda: datetime.now() + timedelta(hours=1))  # 1 hora de validez
 
+class Operation(BaseModel):
+     EVENT_TYPES = (
+        ('login', 'Inicio de sesión'),
+        ('update_profile', 'Actualización de perfil'),
+        ('update_type_user', 'Cambio de tipo de usuario en el sistema'),
+        ('logout', 'Cierre de sesión'),
+        ('rest_password', 'Restablecimiento de contraseña'),
+    )
 
+     user = ForeignKeyField(User, backref='operations')
+     event_type = CharField(choices=EVENT_TYPES)
+     description = TextField()
+     created_at = DateTimeField(default=datetime.now)

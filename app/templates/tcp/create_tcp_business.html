@@ -1,0 +1,106 @@
+<!-- templates/tcp/create_tcp_business.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="features" class="ud-features justify-content-center">
+    <div class="container">
+      
+       <div class="card p-4 shadow" >
+        <h2 class="text-center mb-4">Crear Negocio TCP</h2>
+        <form method="POST">
+            <div class="form-group mb-3">
+                <label for="project_name">Nombre del Proyecto</label>
+                <input type="text" class="form-control" id="project_name" name="project_name" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="description">Descripción del Proyecto</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group mb-3">
+                <label for="main_activity">Actividad Principal</label>
+                <input type="text" class="form-control" id="main_activity" name="main_activity" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="is_registered_in_conservation_zone">Registrado en Zonas Priorizadas para la Conservación</label>
+                <select class="form-control" id="is_registered_in_conservation_zone" name="is_registered_in_conservation_zone">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="has_bank_account">Posee Cuenta Bancaria</label>
+                <select class="form-control" id="has_bank_account" name="has_bank_account">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="payment_method">Método de Pago</label>
+                <select class="form-control" id="payment_method" name="payment_method">
+                    <option value="Tarjeta">Tarjeta</option>
+                    <option value="Efectivo">Efectivo</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="bank_type">Tipo de Banco</label>
+                <select class="form-control" id="bank_type" name="bank_type">
+                    <option value="Metropolitano">Metropolitano</option>
+                    <option value="BANDEC">BANDEC</option>
+                    <option value="BPA">BPA</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="fiscal_bank_branch">Sucursal Bancaria de su Domicilio Fiscal</label>
+                <input type="text" class="form-control" id="fiscal_bank_branch" name="fiscal_bank_branch">
+            </div>
+            <div class="form-group mb-3">
+                <label for="has_transportation">Posee Medio de Transporte</label>
+                <select class="form-control" id="has_transportation" name="has_transportation">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="does_ecommerce">Realiza Comercio Electrónico</label>
+                <select class="form-control" id="does_ecommerce" name="does_ecommerce">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="location">Lugar donde ejerce</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="residential_commercial_area">Área Comercial en Vivienda</label>
+                <select class="form-control" id="residential_commercial_area" name="residential_commercial_area">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="music_service">Servicio de Música</label>
+                <select class="form-control" id="music_service" name="music_service">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="operation_hours">Horario de Funcionamiento de la Instalación</label>
+                <input type="text" class="form-control" id="operation_hours" name="operation_hours" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="nic">NIC</label>
+                <input type="text" class="form-control" id="nic" name="nic" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="business_address">Dirección del Negocio</label>
+                <textarea class="form-control" id="business_address" name="business_address" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Guardar Negocio</button>
+        </form>
+       </div>
+    </div>
+   
+</section>
+{% endblock %}

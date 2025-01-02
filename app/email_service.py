@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import current_app, render_template,url_for
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
@@ -16,12 +17,14 @@ def send_email(subject, recipients, template, **kwargs):
         kwargs: Variables que se pasarán al contexto de la plantilla.
     """
     try:
+        logo_url = url_for('static', filename='images/logo/icol_logo.png', _external=True)
+        current_year = datetime.now().year
         msg = Message(
             subject=subject,
             recipients=recipients,
             sender=current_app.config['MAIL_DEFAULT_SENDER']
         )
-        msg.html = render_template(template, **kwargs)
+        msg.html = render_template(template, logo_url=logo_url, current_year=current_year, **kwargs)
         mail.send(msg)
     except Exception as e:
         current_app.logger.error(f"Error enviando correo: {e}")
