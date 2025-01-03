@@ -58,13 +58,14 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <img src="{{ logo_url }}" alt="Logo">
+            
         </div>
         <div class="email-body">
             {% block content %}{% endblock %}
         </div>
         <div class="email-footer">
             <p>© {{ current_year }} Tecno Tactil TCP. Todos los derechos reservados.</p>
+            <img src="{{ logo_url }}" alt="Logo">
         </div>
     </div>
 </body>

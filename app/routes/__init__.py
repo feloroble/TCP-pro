@@ -21,3 +21,21 @@ def admin_required(f):
             return redirect(url_for('main.index'))  # Redirigir al índice o a otra página
         return f(*args, **kwargs)
     return decorated_function
+
+def user_tcp_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not hasattr(g, 'user') or g.user.rol != 'usuario TCP':
+            flash("Acceso denegado. Solo los Usuarios TCP pueden acceder a esta sección.", "danger")
+            return redirect(url_for('main.index'))  # Redirigir al índice o a otra página
+        return f(*args, **kwargs)
+    return decorated_function
+
+def estadistico_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not hasattr(g, 'user') or g.user.rol != 'estadístico':
+            flash("Acceso denegado. Solo los Estadisticos pueden acceder a esta sección.", "danger")
+            return redirect(url_for('main.index'))  # Redirigir al índice o a otra página
+        return f(*args, **kwargs)
+    return decorated_function

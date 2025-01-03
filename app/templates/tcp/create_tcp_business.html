@@ -7,7 +7,10 @@
       
        <div class="card p-4 shadow" >
         <h2 class="text-center mb-4">Crear Negocio TCP</h2>
+        
         <form method="POST">
+            <button type="submit" class="btn btn-primary ">Guardar Negocio</button>
+            
             <div class="form-group mb-3">
                 <label for="project_name">Nombre del Proyecto</label>
                 <input type="text" class="form-control" id="project_name" name="project_name" required>
@@ -97,7 +100,8 @@
                 <label for="business_address">Dirección del Negocio</label>
                 <textarea class="form-control" id="business_address" name="business_address" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Guardar Negocio</button>
+            <button type="submit" class="btn btn-primary ">Guardar Negocio</button>
+            <button type="{{ url_for('tcp.panel_tcp') }}" class="btn btn-primary ">Regresar al  panel</button>
         </form>
        </div>
     </div>

@@ -119,6 +119,7 @@ def reset_password():
      if request.method == 'POST':
         email = request.form.get('email')
         user = User.get_or_none(User.email == email)
+        usuario = g.user.first_name +" "+ g.user.last_name
         if user:
             # Generar token
             token = generate_reset_token(email)
@@ -130,7 +131,8 @@ def reset_password():
                 recipients=[email],
                 template="email/reset_password.html",
                 title="Restablece tu contraseña",
-                reset_url=reset_url
+                reset_url=reset_url,
+                usuario=usuario
             )
             flash("Se ha enviado un correo con instrucciones para restablecer tu contraseña.", "success")
         else:
@@ -153,9 +155,22 @@ def token_password(token):
             # Actualizar contraseña
             user.set_password(new_password)  # Asegúrate de tener un método para encriptar la contraseña
             user.save()
+
             flash("Tu contraseña ha sido actualizada exitosamente.", "success")
             session['user_id'] = user.id
             Operation.create(user=user, event_type='rest_password', description='Su contraseña fue restablecida de forma satisfactoria.')
+            
+            send_email(
+                subject="Su contraseña fue actualisada con exito",
+                recipients=[email],
+                template="email/password_update.html",
+                title="Su contraseña fue actualisada con exito",
+                
+            )
+            
+            
+            
+            
             return redirect(url_for('user.login'))
     
     return render_template('update_password.html', token=token)
@@ -196,14 +211,14 @@ def load_logged_in_user():
 
 @user_bp.route('/send-notification', methods=['GET'])
 def send_notification():
+    usuario = g.user.first_name +" "+ g.user.last_name
     # Configuración del correo
     subject = "Notificación importante"
     recipients = ["roblefelix64@gmail.com"]
     template = "email/notification.html"
     kwargs = {
-        "title": "Nueva notificación",
-        "message": "Este es un mensaje de ejemplo para tu notificación.",
-        "action_url": "https://tu-sitio.com/accion"
+        "title": usuario,
+        
     }
     
     # Enviar el correo

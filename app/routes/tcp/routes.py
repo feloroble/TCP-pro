@@ -3,7 +3,7 @@ from flask import render_template, request, url_for, redirect, flash, session, g
 
 from app.models.tcp import TCPBusiness
 from app.models.user import Operation
-from .. import login_required
+from .. import login_required, user_tcp_required
 
 
 
@@ -13,10 +13,14 @@ tcp_bp = Blueprint('tcp', __name__, template_folder='../../templates/tcp', stati
 
 @tcp_bp.route('/panel-TCP',methods = ('GET', 'POST'))
 def panel_tcp():
+    if g.user is None:
+        return redirect(url_for('user.login'))
+    negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.user == g.user)
 
-    return render_template ("panel/panel_tcp.html")
+    return render_template ("panel/panel_tcp.html",negocio_tcp =negocio_tcp)
 
 @tcp_bp.route('/create', methods=['GET', 'POST'])
+@user_tcp_required
 @login_required
 def create_tcp_business():
     if request.method == 'POST':
