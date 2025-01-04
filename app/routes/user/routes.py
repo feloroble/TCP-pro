@@ -227,19 +227,28 @@ def send_notification():
 
 @user_bp.route('/operations/latest', methods=['GET'])
 def get_latest_operations():
-        if not g.user:
-           return jsonify({'error': 'Unauthorized'}), 401
+    if not g.user:
+        return jsonify({"error": "Usuario no autenticado"}), 401
 
-        operations = Operation.select().where(Operation.user == g.user).order_by(Operation.created_at.desc()).limit(10)
-        operations_data = [
+    # Obtenemos el filtro de la consulta
+    filter_param = request.args.get("filter", "all")
+
+    # Filtrar operaciones según el tipo de evento
+    query = Operation.select().where(Operation.user == g.user)
+    if filter_param != "all":
+        query = query.where(Operation.event_type == filter_param)
+    
+    # Ordenar y limitar a las últimas 10
+    operations = query.order_by(Operation.created_at.desc()).limit(10)
+    result = [
         {
-            'type': op.event_type,
-            'description': op.description,
-            'created_at': op.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            "event_name": dict(Operation.EVENT_TYPES).get(op.event_type, "Evento desconocido"),
+            "description": op.description,
+            "created_at": op.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
         for op in operations
     ]
-        return jsonify(operations_data)
+    return jsonify(result)
 
 
 

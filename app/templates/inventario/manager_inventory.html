@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block titulo %} Inventario {% endblock %}
+
+{% block content %}
+<section id="features" class="ud-features">
+    <section id="inventory" class="ud-inventory">
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Panel Izquierdo: Categorías -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Categorías</h5>
+                        <ul class="list-group mb-3">
+                            {% for category in categories %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ category.name }}
+                                    <span class="badge bg-primary rounded-pill">{{ category.products.count() }}</span>
+                                </li>
+                            {% else %}
+                                <li class="list-group-item">No hay categorías disponibles.</li>
+                            {% endfor %}
+                        </ul>
+                        <!-- Botón para agregar categoría -->
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                            Agregar Categoría
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Derecho: Productos -->
+            <div class="col-md-9">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Productos</h5>
+                        <form id="filter-form" class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <select id="category-filter" name="category_id" class="form-select">
+                                    <option value="" selected>Todas las categorías</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select id="type-filter" name="type" class="form-select">
+                                    <option value="" selected>Todos los tipos</option>
+                                    <option value="physical">Físico</option>
+                                    <option value="digital">Digital</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                            </div>
+                        </form>
+                        <table id="products-table" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Tipo</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td>{{ product.category.name }}</td>
+                                        <td>{{ product.type }}</td>
+                                        <td>{{ product.stock }}</td>
+                                        <td>{{ product.price }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No hay productos disponibles.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <!-- Botón para agregar producto -->
+                        <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            Agregar Producto
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   </section>
+</section>
+<!-- Modal para Agregar Categoría -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('inventario.add_category') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Agregar Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="category-name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="category-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category-description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="category-description" name="description"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar Producto -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('inventario.add_product') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="product-name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="product-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-category" class="form-label">Categoría</label>
+                        <select class="form-select" id="product-category" name="category" required>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-type" class="form-label">Tipo</label>
+                        <select class="form-select" id="product-type" name="type" required>
+                            <option value="physical">Físico</option>
+                            <option value="digital">Digital</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-stock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="product-stock" name="stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-price" class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" id="product-price" name="price" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

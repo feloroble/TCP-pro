@@ -1,8 +1,7 @@
-from pkgutil import get_data
 from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
-
 from app.models.tcp import TCPBusiness
-from app.models.user import Operation
+from app.models.user import Operation, User
+from app.routes import user
 from .. import login_required, user_tcp_required
 
 
@@ -13,11 +12,66 @@ tcp_bp = Blueprint('tcp', __name__, template_folder='../../templates/tcp', stati
 
 @tcp_bp.route('/panel-TCP',methods = ('GET', 'POST'))
 def panel_tcp():
-    if g.user is None:
-        return redirect(url_for('user.login'))
-    negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.user == g.user)
+    negocio_id = session.get('negocio_id')
 
-    return render_template ("panel/panel_tcp.html",negocio_tcp =negocio_tcp)
+    if request.method == 'POST':
+        # Selección de negocio
+        negocio_id = request.form.get('negocio_id')
+        if negocio_id:
+            negocio = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id, TCPBusiness.user == g.user.id)
+            if negocio:
+                session['negocio_id'] = negocio_id
+                flash('Negocio seleccionado correctamente.', 'success')
+            else:
+                flash('No tienes permiso para acceder a este negocio.', 'danger')
+
+        return redirect(url_for('tcp.panel_tcp'))
+
+    # Diccionario de eventos
+    EVENT_TYPES_DICT = {
+        'login': 'Inicio de sesión',
+        'update_profile': 'Actualización de perfil',
+        'update_type_user': 'Cambio de tipo de usuario en el sistema',
+        'logout': 'Cierre de sesión',
+        'rest_password': 'Restablecimiento de contraseña',
+    }
+    
+   # Carga el negocio actualmente seleccionado
+    negocio_tcp = None
+    if negocio_id:
+        negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id, TCPBusiness.user == g.user.id)
+
+    # Manejo de filtro de actividades
+    event_filter = request.args.get('event_filter', 'all')  # 'all' es el valor por defecto
+    query = Operation.select().where(Operation.user == g.user.id)
+
+    if event_filter != 'all':
+        query = query.where(Operation.event_type == event_filter)
+
+    operations = query.order_by(Operation.created_at.desc())
+
+    # Mapea los eventos
+    operations_with_names = [
+        {
+            "event_name": EVENT_TYPES_DICT.get(op.event_type, "Evento desconocido"),
+            "description": op.description,
+            "created_at": op.created_at,
+        }
+        for op in operations
+    ]
+    
+
+
+    return render_template ("panel/panel_tcp.html",negocio_tcp =negocio_tcp, negocios=g.negocios,operations=operations_with_names, filter_selected=event_filter)
+
+
+
+@tcp_bp.before_request
+def load_user_negocios():
+    # Carga los negocios del usuario actual
+    if g.user:
+        g.negocios = TCPBusiness.select().where(TCPBusiness.user == g.user.id)
+
 
 @tcp_bp.route('/create', methods=['GET', 'POST'])
 @user_tcp_required
