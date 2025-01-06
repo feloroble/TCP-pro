@@ -1,4 +1,4 @@
-from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from app.models.tcp import TCPBusiness
 from app.models.user import Operation, User
 from app.routes import user
@@ -21,7 +21,9 @@ def panel_tcp():
             negocio = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id, TCPBusiness.user == g.user.id)
             if negocio:
                 session['negocio_id'] = negocio_id
-                flash('Negocio seleccionado correctamente.', 'success')
+                
+                flash(f"Negocio '{TCPBusiness.project_name}' seleccionado correctamente.", "success")
+                print(f"Negocio seleccionado: {session.get('negocio_id')}")
             else:
                 flash('No tienes permiso para acceder a este negocio.', 'danger')
 
@@ -71,6 +73,8 @@ def load_user_negocios():
     # Carga los negocios del usuario actual
     if g.user:
         g.negocios = TCPBusiness.select().where(TCPBusiness.user == g.user.id)
+
+
 
 
 @tcp_bp.route('/create', methods=['GET', 'POST'])
@@ -127,3 +131,29 @@ def create_tcp_business():
             return redirect(url_for('tcp.create_tcp_business'))
 
     return render_template('tcp/create_tcp_business.html')
+
+@tcp_bp.before_request
+def set_selected_business():
+    selected_business_id = session.get('selected_business_id')
+    if selected_business_id:
+        try:
+            g.selected_business = TCPBusiness.get(TCPBusiness.id == selected_business_id)
+        except TCPBusiness.DoesNotExist:
+            g.selected_business = None
+    else:
+        g.selected_business = None
+
+
+## vista de selcion de negocio para selecionar
+@tcp_bp.route('/select', methods=['POST'])
+def select_business():
+    business_id = request.form.get('business_id')
+    try:
+        # Validar que el negocio pertenece al usuario autenticado
+        business = TCPBusiness.get(TCPBusiness.id == business_id, TCPBusiness.user == g.user)
+        session['selected_business_id'] = business.id
+        session['selected_business_name'] = business.name
+        return jsonify({"success": True, "message": f"Negocio '{business.name}' seleccionado"})
+    except TCPBusiness.DoesNotExist:
+        return jsonify({"success": False, "message": "Negocio no encontrado o no autorizado"}), 404
+

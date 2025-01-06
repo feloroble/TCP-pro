@@ -29,7 +29,7 @@
                         <h5 class="card-title">Mis Negocios</h5>
                         {% if negocios %}
                         <form method="POST" action="{{ url_for('tcp.panel_tcp') }}">
-                            <select name="negocio_id" id="select-negocio" class="form-select mb-3">
+                            <select name="negocio_id" id="negocio_id" class="form-select mb-3">
                                 <option value="" disabled selected>Selecciona un negocio</option>
                                 {% for negocio in negocios %}
                                 <option value="{{ negocio.id }}" {% if negocio_tcp and negocio.id == negocio_tcp.id %}selected{% endif %}>
@@ -55,7 +55,7 @@
                             <li><a href="{{ url_for('tcp.create_tcp_business') }}" class="text-primary">Crear un nuevo negocio</a></li>
                             <li><a href="#" class="text-primary">Facturas de Ventas</a></li>
                             <li><a href="#" class="text-primary">Facturas de Compras</a></li>
-                            <li><a href="#" class="text-primary">Inventarios</a></li>
+                            <li><a href="{{ url_for('inventario.index') }}" class="text-primary">Inventarios</a></li>
                             <li><a href="#" class="text-primary">Impuestos</a></li>
                             <li><a href="#" class="text-primary">Reportes</a></li>
                             <li><a href="#" class="text-primary">Ayuda y Documentaciòn TCP</a></li>

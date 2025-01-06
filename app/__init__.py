@@ -1,5 +1,8 @@
 
-from flask import Flask
+from flask import Flask, g, session
+
+from app.middleware import track_url_middleware
+from app.models.tcp import TCPBusiness
 from .config import  SECRET_KEY, MAIL
 
 from app.extensions import mail
@@ -23,6 +26,29 @@ def create_app():
 
     # Inicializar extensiones
     mail.init_app(app)
+
+    @app.before_request
+    def set_selected_business():
+       selected_business_id = session.get('selected_business_id')
+       if selected_business_id:
+        try:
+            g.selected_business = TCPBusiness.get(TCPBusiness.id == selected_business_id)
+        except TCPBusiness.DoesNotExist:
+            g.selected_business = None
+       else:
+         g.selected_business = None
+    
+    # Agregar middleware
+    track_url_middleware(app)
+    
+    
+    
+    @app.context_processor
+    def inject_business_context():
+      return {
+        'selected_business_name': getattr(g.selected_business, 'name', None),
+        'selected_business_id': getattr(g.selected_business, 'id', None),
+      }
     
 
      

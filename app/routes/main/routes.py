@@ -1,6 +1,7 @@
 from pkgutil import get_data
 from flask import render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 
+from app.models.tcp import TCPBusiness
 from app.models.user import Operation
 from .. import login_required
 
@@ -12,6 +13,18 @@ main_bp = Blueprint('main', __name__, template_folder='../../templates/main', st
 @main_bp.route('/')
 def index():
     return render_template('main/index.html')
+
+@main_bp.before_request
+def set_selected_business():
+    selected_business_id = session.get('selected_business_id')
+    if selected_business_id:
+        try:
+            g.selected_business = TCPBusiness.get(TCPBusiness.id == selected_business_id)
+        except TCPBusiness.DoesNotExist:
+            g.selected_business = None
+    else:
+        g.selected_business = None
+
 
 # proyecto flujorad web
 

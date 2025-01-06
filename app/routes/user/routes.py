@@ -103,8 +103,9 @@ def login():
 
         session['user_id'] = user.id
         session['username'] = user.username
+        session['url_history'] = []
         flash('Inicio de sesión exitoso.', 'success')
-        session['user_id'] = user.id
+        
         Operation.create(user=user, event_type='login', description='Inicio de sesión exitoso.')
         return redirect(url_for('main.panel_user'))
 

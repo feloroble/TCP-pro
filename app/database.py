@@ -14,6 +14,7 @@ db = MySQLDatabase(
 class BaseModel(Model):
     class Meta:
         database = db
+        table_name = 'products'
 
 # Función para inicializar la base de datos
 def init_db():
