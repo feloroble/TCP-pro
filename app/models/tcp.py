@@ -1,9 +1,6 @@
 from datetime import datetime
-from peewee import (
-    Model, CharField, TextField, BooleanField, ForeignKeyField, 
-    IntegerField, DateTimeField
-)
-from app.database import db,BaseModel
+from peewee import *
+from app.database import BaseModel
 from app.models.user import User
 
 class TCPBusiness(BaseModel):
@@ -40,4 +37,8 @@ class TCPBusiness(BaseModel):
     # Campos de control
     created_at = DateTimeField(default=datetime.now, verbose_name="Fecha de creación")
     
-    
+
+    class Meta:
+        indexes = (         # Agrega un índice único compuesto entre el nombre y el negocio
+            (('name', 'business'), True),
+              )

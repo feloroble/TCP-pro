@@ -65,5 +65,5 @@ def create_app():
     
     return app
     
-    print("Inicializando app")
+   
 

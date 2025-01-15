@@ -103,6 +103,8 @@ def login():
 
         session['user_id'] = user.id
         session['username'] = user.username
+        session['nombre_completo'] = f"{user.first_name} {user.last_name}"
+        session['cargo'] = user.cargo
         session['url_history'] = []
         flash('Inicio de sesión exitoso.', 'success')
         

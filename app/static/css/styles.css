@@ -6,3 +6,7 @@ main {
     flex-grow: 1; /* El contenido principal crecerá para ocupar el espacio disponible */
 }
 
+
+fixed-width-btn {
+        width: 200px; /* Ajusta el ancho según lo necesites */
+}

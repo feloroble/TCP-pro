@@ -1,8 +1,10 @@
 
-from peewee import  CharField, AutoField,Model,ForeignKeyField, DateTimeField, TextField
-from datetime import datetime, timedelta
+from peewee import  CharField, AutoField,ForeignKeyField, DateTimeField, TextField
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from app.database import  BaseModel
+
 
 
 
@@ -15,7 +17,8 @@ class User(BaseModel):
     phone = CharField(max_length=15, unique=True)  # Nuevo campo
     password = CharField(max_length=255)
     rol = CharField(max_length=20, default='usuario')
-
+    cargo = CharField(max_length=50)
+    
     def set_password(self, password):
         self.password = generate_password_hash(password)
 

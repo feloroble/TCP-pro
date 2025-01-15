@@ -26,3 +26,29 @@
 .navbar-toggler {
     border-color: #ffffff;
 }
+
+.dropdown-menu {
+    background-color: #0066cc; /* Azul medio */
+    border: none;
+}
+
+.dropdown-menu .dropdown-item {
+    color: white;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #004080; /* Azul oscuro */
+    color: #cce7ff; /* Azul claro */
+}
+
+/* Estilo para la opción activa */
+.navbar .nav-link.active {
+    color: #ffffff; /* Blanco */
+    font-weight: bold;
+    border-bottom: 2px solid #ffffff;
+}
+
+.fixed-width-btn {
+    width: 300px; /* Ajusta el ancho según lo necesites */
+}

@@ -14,7 +14,8 @@ db = MySQLDatabase(
 class BaseModel(Model):
     class Meta:
         database = db
-        table_name = 'products'
+        
+        
 
 # Función para inicializar la base de datos
 def init_db():
@@ -22,6 +23,4 @@ def init_db():
     
 
     # Crear las tablas si no existen
-    db.connect()
-    db.create_tables([User],[PasswordResetToken])
-    db.close()
+    

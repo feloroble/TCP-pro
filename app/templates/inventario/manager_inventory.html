@@ -2,59 +2,131 @@
 
 {% block content %}
 <section id="features" class="ud-features">
+    
+
 
    
    <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+       {% if messages %}
+       <div class="alert alert-dismissible fade show" role="alert">
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+         {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
     <h1>Inventario - {{ business_name }}</h1>
+    
 
-    <!-- Botones para agregar categoría y producto -->
-    <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Agregar Categoría</button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Agregar Producto</button>
-        
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Tabla de Categorías -->
+            <div class="col-md-8">
+                <h2>Categorías</h2>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Productos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.description or "Sin descripción" }}</td>
+                            <td>{{ category.products.count() }}</td> <!-- Muestra la cantidad de productos -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
+            <!-- Botones y Acciones -->
+            <div class="col-md-4">
+                <div class="d-flex flex-column align-items-start">
+                    <h2>Opciones :</h2>
+                    <!-- Botón para crear una categoría -->
+                    <button class="btn btn-primary mb-3 fixed-width-btn" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        Crear Categoría
+                    </button>
+
+                    <!-- Botón para crear un producto -->
+                    <button class="btn btn-success mb-3 fixed-width-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        Crear Producto
+                    </button>
+
+                    <!-- Botón para imprimir selección -->
+                    <button class="btn btn-warning mb-3 fixed-width-btn" id="printSelectionButton">
+                        Imprimir Selección
+                    </button>
+
+                    <!-- Botón para regresar al Panel TCP -->
+                    <a href="{{ url_for('tcp.panel_tcp') }}" class="btn btn-secondary mt-3 fixed-width-btn">
+                        Regresar al Panel TCP
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Productos -->
+        <div class="row mt-4">
+            <div class="col">
+                <h2>Productos</h2>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Tipo</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category.name }}</td>
+                            <td>{{ product.tipo }}</td>
+                            <td>${{ product.price }}</td>
+                            <td>
+                                {% if product.cost_sheet and product.cost_sheet.updated_at %}
+                                    {{ product.cost_sheet.updated_at.strftime('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                    No editada
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.cost_sheet %}                       
+                                    <button class="btn btn-info btn-sm " data-bs-toggle="modal" data-bs-target="#createCostSheetModal{{ product.id }}">
+                                        Editar Ficha de Costo
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createCostSheetModal{{ product.id }}">
+                                        Crear Ficha de Costo
+                                    </button>
+                                {% endif %}
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal{{ product.id }}">
+                                    Editar Producto
+                                </button>
+                                <form method="POST" action="{{ url_for('inventario.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Estás seguro de eliminar este producto?');" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <!-- Tabla de Categorías -->
-    <h2>Categorías</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for category in categories %}
-                <tr>
-                    <td>{{ category.name }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Tabla de Productos -->
-    <h2>Productos</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Stock</th>
-                <th>Precio</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.category.name }}</td>
-                    <td>{{ product.stock }}</td>
-                    <td>${{ product.price }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-   </div>
 
 <!-- Modal Agregar Categoría -->
    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">
@@ -69,6 +141,10 @@
                     <div class="mb-3">
                         <label for="category-name" class="form-label">Nombre de la Categoría</label>
                         <input type="text" class="form-control" id="category-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category-desc" class="form-label">Descripcion de la Categoría</label>
+                        <input type="text" class="form-control" id="category-desc" name="desc" required>
                     </div>
                     <input type="hidden" name="business_id" value="{{ business_id }}">
                 </div>
@@ -93,14 +169,23 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="product-name" class="form-label">Nombre del Producto</label>
-                        <input type="text" class="form-control" id="product-name" name="name" required>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="mb-3">
                         <label for="category-id" class="form-label">Categoría</label>
-                        <select class="form-select" id="category-id" name="category_id" required>
+                        <select class="form-select" id="category_id" name="category_id" required>
                             {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category-id" class="form-label">Tipo</label>
+                        <select class="form-select" id="type" name="type" required>
+                                <option >Servicio</option>
+                                <option >Fisico</option>
+                                <option >Digital</option>
+                            
                         </select>
                     </div>
                     <div class="mb-3">
@@ -121,5 +206,226 @@
         </div>
     </div>
    </div>
+
+<!-- Modal para Crear o Editar Ficha de Costo -->
+{% for product in products %}
+<div class="modal fade" id="createCostSheetModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('inventario.manage_cost_sheet', product_id=product.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ficha de Costo para {{ product.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="mb-3">
+                        <label for="unit_of_measure" class="form-label">Unidad de Medida</label>
+                        <input type="text" class="form-control" id="unit_of_measure" name="unit_of_measure" 
+                                value="{{ product.cost_sheet.unit_of_measure if product.cost_sheet else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="production_level" class="form-label">Nivel de Producción</label>
+                        <input type="number" class="form-control" id="production_level" name="production_level" 
+                               value="{{ product.cost_sheet.production_level if product.cost_sheet else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="utilization_percentage" class="form-label">Porcentaje de Utilización</label>
+                        <input type="number" step="0.01" class="form-control" id="utilization_percentage" 
+                               name="utilization_percentage" 
+                               value="{{ product.cost_sheet.utilization_percentage if product.cost_sheet else '' }}" required>
+                    </div>
+                    <!-- Campo de Elaborado por (Deshabilitado para evitar cambios manuales) -->
+                    <div class="form-group">
+                      <label for="elaborated_by">Elaborado por</label>
+                     <input type="text" class="form-control" id="elaborated_by" name="elaborated_by" 
+                           value="{{ nombre_completo }}" readonly>
+                   </div>
+
+                    <!-- Campo de Cargo (Deshabilitado para evitar cambios manuales) -->
+                    <div class="form-group">
+                      <label for="user_position">Cargo</label>
+                     <input type="text" class="form-control" id="user_position" name="user_position" 
+                           value="{{ cargo }}" readonly>
+                   </div>
+
+                   <div class="modal-body">
+                    <table class="table table-bordered" id="conceptsTable">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Fila</th>
+                                <th>Costo Base</th>
+                                <th>Costo Nuevo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Conceptos existentes -->
+                            {% for concept in concepts %}
+                            <tr data-concept-id="{{ concept.id }}">
+                                <td><input type="text" class="form-control" value="{{ concept.concept }}" name="concept"></td>
+                                <td><input type="number" class="form-control" value="{{ concept.row }}" name="row"></td>
+                                <td><input type="number" class="form-control" value="{{ concept.base_cost }}" name="base_cost"></td>
+                                <td><input type="number" class="form-control new-cost" value="{{ concept.new_cost }}" name="new_cost"></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm delete-row">Eliminar</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="#" id="addRow" class="btn btn-success btn-sm">Agregar Fila</a> 
+                <div class="modal-footer">
+                    <div>
+                        <strong>Precio de Costo Total:</strong>
+                        <span id="totalCost">0.00</span>
+                    </div>
+                    <button type="button" id="saveConcepts" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+                    
+                    
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade " id="addConceptModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ficha de Costo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="conceptsTable">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Fila</th>
+                            <th>Costo Base</th>
+                            <th>Costo Nuevo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Conceptos existentes -->
+                        {% for concept in concepts %}
+                        <tr data-concept-id="{{ concept.id }}">
+                            <td><input type="text" class="form-control" value="{{ concept.concept }}" name="concept"></td>
+                            <td><input type="number" class="form-control" value="{{ concept.row }}" name="row"></td>
+                            <td><input type="number" class="form-control" value="{{ concept.base_cost }}" name="base_cost"></td>
+                            <td><input type="number" class="form-control new-cost" value="{{ concept.new_cost }}" name="new_cost"></td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm delete-row">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button id="addRow" class="btn btn-success btn-sm">Agregar Fila</button>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <strong>Precio de Costo Total:</strong>
+                    <span id="totalCost">0.00</span>
+                </div>
+                <button id="saveConcepts" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+{% endfor %}
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    const conceptsTable = document.getElementById('conceptsTable').querySelector('tbody');
+    const totalCostElement = document.getElementById('totalCost');
+
+    // Agregar nueva fila
+    document.getElementById('addRow').addEventListener('click', () => {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" class="form-control" name="concept"></td>
+            <td><input type="number" class="form-control" name="row"></td>
+            <td><input type="number" class="form-control" name="base_cost"></td>
+            <td><input type="number" class="form-control new-cost" name="new_cost"></td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm delete-row">Eliminar</button>
+            </td>
+        `;
+        conceptsTable.appendChild(newRow);
+        updateTotalCost();
+    });
+
+    // Eliminar fila
+    conceptsTable.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-row')) {
+            const row = e.target.closest('tr');
+            row.remove();
+            updateTotalCost();
+        }
+    });
+
+    // Calcular el total de new_cost y actualizar el precio de costo total
+    conceptsTable.addEventListener('input', (e) => {
+        if (e.target.classList.contains('new-cost')) {
+            updateTotalCost();
+        }
+    });
+
+    // Actualizar el total de la columna "new_cost"
+    function updateTotalCost() {
+        let totalCost = 0;
+        Array.from(conceptsTable.querySelectorAll('.new-cost')).forEach((input) => {
+            totalCost += parseFloat(input.value) || 0;
+        });
+        totalCostElement.textContent = totalCost.toFixed(2);
+    }
+    
+   
+    // Guardar conceptos
+    document.getElementById('saveConcepts').addEventListener('click', async () => {
+        const concepts = Array.from(conceptsTable.rows).map((row) => ({
+            id: row.dataset.conceptId || null,
+            concept: row.querySelector('[name="concept"]').value,
+            row: parseInt(row.querySelector('[name="row"]').value) || 0,
+            base_cost: parseFloat(row.querySelector('[name="base_cost"]').value) || 0,
+            new_cost: parseFloat(row.querySelector('[name="new_cost"]').value) || 0,
+        }));
+
+        const totalCost = parseFloat(totalCostElement.textContent);
+
+        const response = await fetch('/tcp/inventario/save_concepts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ concepts, totalCost, cost_sheet_id: '{{ prod }}' }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('Conceptos guardados exitosamente');
+            location.reload();
+        } else {
+            alert('Error al guardar los conceptos: ' + result.message);
+        }
+    });
+});
+
+
+
+
+</script>
 </section>
 {% endblock %}
