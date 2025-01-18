@@ -276,6 +276,8 @@
                         </tbody>
                     </table>
                     <a href="#" id="addRow" class="btn btn-success btn-sm">Agregar Fila</a> 
+                    <button id="addRowBtn" class="btn btn-primary">Agregar Fila</button>
+                    <button id="saveConceptsBtn" class="btn btn-success">Guardar Conceptos</button>
                 <div class="modal-footer">
                     <div>
                         <strong>Precio de Costo Total:</strong>
@@ -350,81 +352,96 @@
 <script>
 
 document.addEventListener('DOMContentLoaded', () => {
-    const conceptsTable = document.getElementById('conceptsTable').querySelector('tbody');
-    const totalCostElement = document.getElementById('totalCost');
+    const conceptsTableBody = document.querySelector('#conceptsTable tbody');
+    const addRowBtn = document.getElementById('addRowBtn');
+    const saveConceptsBtn = document.getElementById('saveConceptsBtn');
+    const costSheetId = document.getElementById('costSheetModal').getAttribute('data-cost-sheet-id');
 
-    // Agregar nueva fila
-    document.getElementById('addRow').addEventListener('click', () => {
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td><input type="text" class="form-control" name="concept"></td>
-            <td><input type="number" class="form-control" name="row"></td>
-            <td><input type="number" class="form-control" name="base_cost"></td>
-            <td><input type="number" class="form-control new-cost" name="new_cost"></td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm delete-row">Eliminar</button>
-            </td>
-        `;
-        conceptsTable.appendChild(newRow);
-        updateTotalCost();
-    });
+    // Cargar conceptos existentes
+    function loadConcepts() {
+        fetch(`/fetch_concepts/${costSheetId}`)
+            .then(response => response.json())
+            .then(data => {
+                conceptsTableBody.innerHTML = '';
+                if (data.status === 'success' && data.concepts.length > 0) {
+                    data.concepts.forEach(concept => {
+                        addConceptRow(concept);
+                    });
+                } else {
+                    addEmptyRow();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Agregar una fila vacía
+    function addEmptyRow() {
+        const row = `
+            <tr>
+                <td><input type="text" class="form-control" name="concept"></td>
+                <td><input type="number" class="form-control" name="row"></td>
+                <td><input type="number" class="form-control" name="base_cost" step="0.01"></td>
+                <td><input type="number" class="form-control" name="new_cost" step="0.01"></td>
+                <td>
+                    <button class="btn btn-danger btn-sm deleteRowBtn">Eliminar</button>
+                </td>
+            </tr>`;
+        conceptsTableBody.insertAdjacentHTML('beforeend', row);
+    }
+
+    // Agregar una fila con datos
+    function addConceptRow(concept) {
+        const row = `
+            <tr data-id="${concept.id}">
+                <td><input type="text" class="form-control" name="concept" value="${concept.concept}"></td>
+                <td><input type="number" class="form-control" name="row" value="${concept.row}"></td>
+                <td><input type="number" class="form-control" name="base_cost" value="${concept.base_cost}" step="0.01"></td>
+                <td><input type="number" class="form-control" name="new_cost" value="${concept.new_cost}" step="0.01"></td>
+                <td>
+                    <button class="btn btn-danger btn-sm deleteRowBtn">Eliminar</button>
+                </td>
+            </tr>`;
+        conceptsTableBody.insertAdjacentHTML('beforeend', row);
+    }
 
     // Eliminar fila
-    conceptsTable.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-row')) {
-            const row = e.target.closest('tr');
-            row.remove();
-            updateTotalCost();
+    conceptsTableBody.addEventListener('click', (event) => {
+        if (event.target.classList.contains('deleteRowBtn')) {
+            event.target.closest('tr').remove();
         }
     });
 
-    // Calcular el total de new_cost y actualizar el precio de costo total
-    conceptsTable.addEventListener('input', (e) => {
-        if (e.target.classList.contains('new-cost')) {
-            updateTotalCost();
-        }
-    });
-
-    // Actualizar el total de la columna "new_cost"
-    function updateTotalCost() {
-        let totalCost = 0;
-        Array.from(conceptsTable.querySelectorAll('.new-cost')).forEach((input) => {
-            totalCost += parseFloat(input.value) || 0;
-        });
-        totalCostElement.textContent = totalCost.toFixed(2);
-    }
-    
-   
     // Guardar conceptos
-    document.getElementById('saveConcepts').addEventListener('click', async () => {
-        const concepts = Array.from(conceptsTable.rows).map((row) => ({
-            id: row.dataset.conceptId || null,
+    saveConceptsBtn.addEventListener('click', () => {
+        const rows = conceptsTableBody.querySelectorAll('tr');
+        const concepts = Array.from(rows).map(row => ({
+            id: row.dataset.id || null,
             concept: row.querySelector('[name="concept"]').value,
-            row: parseInt(row.querySelector('[name="row"]').value) || 0,
-            base_cost: parseFloat(row.querySelector('[name="base_cost"]').value) || 0,
-            new_cost: parseFloat(row.querySelector('[name="new_cost"]').value) || 0,
+            row: row.querySelector('[name="row"]').value,
+            base_cost: row.querySelector('[name="base_cost"]').value,
+            new_cost: row.querySelector('[name="new_cost"]').value,
         }));
 
-        const totalCost = parseFloat(totalCostElement.textContent);
-
-        const response = await fetch('/tcp/inventario/save_concepts', {
+        fetch('/save_concepts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ concepts, totalCost, cost_sheet_id: '{{ prod }}' }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            alert('Conceptos guardados exitosamente');
-            location.reload();
-        } else {
-            alert('Error al guardar los conceptos: ' + result.message);
-        }
+            body: JSON.stringify({ cost_sheet_id: costSheetId, concepts })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Conceptos guardados con éxito');
+                    loadConcepts();
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            })
+            .catch(error => console.error('Error:', error));
     });
+
+    // Cargar conceptos al abrir el modal
+    loadConcepts();
 });
-
-
-
 
 </script>
 </section>

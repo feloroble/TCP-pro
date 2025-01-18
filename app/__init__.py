@@ -3,6 +3,7 @@ from flask import Flask, g, session
 
 from app.middleware import track_url_middleware
 from app.models.tcp import TCPBusiness
+from app.tasks.scheduler import initialize_scheduler
 from .config import  SECRET_KEY, MAIL
 
 from app.extensions import mail
@@ -41,7 +42,7 @@ def create_app():
     # Agregar middleware
     track_url_middleware(app)
     
-    
+    initialize_scheduler(app)
     
     @app.context_processor
     def inject_business_context():

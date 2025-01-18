@@ -11,6 +11,8 @@ tcp_bp = Blueprint('tcp', __name__, template_folder='../../templates/tcp', stati
 # ruta principal de inicio
 
 @tcp_bp.route('/panel-TCP',methods = ('GET', 'POST'))
+@login_required
+@user_tcp_required
 def panel_tcp():
     negocio_id = session.get('negocio_id')
 
@@ -18,14 +20,15 @@ def panel_tcp():
         # Selección de negocio
         negocio_id = request.form.get('negocio_id')
         if negocio_id:
-            negocio = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id, TCPBusiness.user == g.user.id)
-            if negocio:
-                session['negocio_id'] = negocio_id
+            
+            nombre_negoco = TCPBusiness.select().where(TCPBusiness.id == negocio_id)
+
+            for nomb_tcp in nombre_negoco:
+                nombre = nomb_tcp.project_name 
                 
-                flash(f"Negocio '{TCPBusiness.project_name}' seleccionado correctamente.", "success")
-                print(f"Negocio seleccionado: {session.get('negocio_id')}")
-            else:
-                flash('No tienes permiso para acceder a este negocio.', 'danger')
+            flash(f"Negocio {nombre } seleccionado correctamente.", "success")
+        else:
+            flash('No tienes permiso para acceder a este negocio.', 'danger')
 
         return redirect(url_for('tcp.panel_tcp'))
 
@@ -72,7 +75,7 @@ def panel_tcp():
 def load_user_negocios():
     # Carga los negocios del usuario actual
     if g.user:
-        g.negocios = TCPBusiness.select().where(TCPBusiness.user == g.user.id)
+        g.negocios = TCPBusiness.select().where(TCPBusiness.user_id == g.user.id)
 
 
 
@@ -118,7 +121,7 @@ def create_tcp_business():
             operation_hours=operation_hours,
             nic=nic,
             business_address=business_address,
-            user=g.user  # Asociación con el usuario autenticado
+            user_id=g.user  # Asociación con el usuario autenticado
         )
 
         # Guardar en la base de datos

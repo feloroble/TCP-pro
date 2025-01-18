@@ -1,9 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
+<section id="features" class="ud-features">
+   <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+       {% if messages %}
+       <div class="alert alert-dismissible fade show" role="alert">
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+         {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
     <h2 class="text-center">Panel de Administración</h2>
-    <div class="table-responsive mt-4">
+       <div class="table-responsive  mt-4">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -14,7 +24,11 @@
                     <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Rol Actual</th>
+                    <th>Duración Licencia</th>
+                    <th>Expira</th>
+                    <th>Días Restantes</th>
                     <th>Nuevo Rol</th>
+                    <th>Duración (meses)</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -28,9 +42,20 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.rol }}</td>
+                    <td>{{ user.license_duration or 'N/A' }} meses</td>
+                    <td>{{ user.license_expiry.strftime('%d-%m-%Y') if user.license_expiry else 'Sin fecha' }}</td>
+                    <td>
+                        {% if user.days_remaining > 30 %}
+                            <span class="text-success">{{ user.days_remaining }} días</span>
+                        {% elif user.days_remaining > 0 %}
+                            <span class="text-warning">{{ user.days_remaining }} días</span>
+                        {% else %}
+                            <span class="text-danger">Expirado</span>
+                        {% endif %}
+                    </td>
                     <form method="POST" action="{{ url_for('user.admin_panel') }}">
                         <td>
-                            <select class="form-select" name="new_role">
+                            <select class="form-select" name="new_role" onchange="toggleLicenseInput(this, '{{ user.id }}')">
                                 <option value="usuario" {% if user.rol == "usuario" %}selected{% endif %}>Usuario</option>
                                 <option value="administrador" {% if user.rol == "administrador" %}selected{% endif %}>Administrador</option>
                                 <option value="usuario TCP" {% if user.rol == "usuario TCP" %}selected{% endif %}>usuario TCP</option>
@@ -38,14 +63,39 @@
                             </select>
                         </td>
                         <td>
+                            <input 
+                                type="number" 
+                                class="form-control license-duration-input" 
+                                name="license_duration" 
+                                id="license_duration_{{ user.id }}" 
+                                placeholder="Meses" 
+                                value="{{ user.license_duration or '' }}" 
+                                {% if user.rol != "usuario TCP" %}disabled{% endif %}
+                            >
+                        </td>
+                        <td>
                             <input type="hidden" name="user_id" value="{{ user.id }}">
-                            <button class="btn btn-primary" type="submit">Actualizar Rol</button>
+                            <button class="btn btn-primary" type="submit">Actualizar</button>
                         </td>
                     </form>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-</div>
+      </div>
+  </div>
+</section>
+<script>
+    // Habilita o deshabilita el campo "Duración de licencia" basado en el rol seleccionado.
+    function toggleLicenseInput(select, userId) {
+        const licenseInput = document.getElementById(`license_duration_${userId}`);
+        if (select.value === "usuario TCP") {
+            licenseInput.disabled = false;
+        } else {
+            licenseInput.disabled = true;
+            licenseInput.value = ""; // Limpia el valor si se desactiva
+        }
+    }
+</script>
+
 {% endblock %}

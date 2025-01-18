@@ -32,7 +32,7 @@ class TCPBusiness(BaseModel):
     business_address = TextField(verbose_name="Dirección del negocio")
 
     # Relación con usuario
-    user = ForeignKeyField(User, backref="tcp_businesses", on_delete="CASCADE")
+    user_id = ForeignKeyField(User, backref="tcp_businesses", on_delete="CASCADE")
 
     # Campos de control
     created_at = DateTimeField(default=datetime.now, verbose_name="Fecha de creación")

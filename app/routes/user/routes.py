@@ -1,8 +1,10 @@
 
 
+from datetime import datetime, timedelta
 from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
+from app.middleware import check_license_expiry
 from app.models import user
 from app.models.user import Operation, User
 from app.email_service import generate_reset_token, send_email, verify_reset_token
@@ -201,8 +203,6 @@ def logout_user():
         return redirect(url_for('main.index'))
 
 
-   
-
 @user_bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
@@ -211,6 +211,12 @@ def load_logged_in_user():
     else:
         g.user = None
 
+@user_bp.before_app_request
+def check_user_license_warning():
+    if not hasattr(g, 'user') and g.user.rol == 'usuario TCP':
+        days_remaining = (user.license_expiry - datetime.now()).days
+        if days_remaining <= 7:  # Advertir con 7 días de antelación
+            flash(f"Tu licencia TCP expira en {days_remaining} días.", "warning")
 
 @user_bp.route('/send-notification', methods=['GET'])
 def send_notification():
@@ -253,7 +259,7 @@ def get_latest_operations():
     ]
     return jsonify(result)
 
-
+# panel de administrador funciones
 
 @user_bp.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -263,21 +269,49 @@ def admin_panel():
     if request.method == 'POST':
         user_id = request.form.get('user_id')
         new_role = request.form.get('new_role')
-
+        license_duration = request.form.get('license_duration', type=int)
         # Verificar si el usuario existe
         user = User.get_or_none(User.id == user_id)
-        if user:
+        if not user:
             user.rol = new_role
-            user.save()
-            flash(f"El rol del usuario {user.username} ha sido actualizado a {new_role}.", "success")
-        else:
             flash("El usuario especificado no existe.", "danger")
-        return redirect(url_for('user.admin_panel'))
+            return redirect(url_for('user.admin_panel'))
+        # Actualiza el rol del usuario
+        user.rol = new_role
+           
+        if new_role == "usuario TCP":
+            if license_duration and license_duration > 0:
+                user.license_duration = int(license_duration)
+                user.license_expiry = datetime.now() + timedelta(days=30 * license_duration)
+            else:
+                flash("Debe especificar una duración válida para la licencia.", "error")
+                return redirect(url_for('user.admin_panel'))
+        else:
+            # Si no es "usuario TCP", elimina la duración de licencia y la fecha de expiración
+            user.license_duration = None
+            user.license_expiry = None
+
+        user.save()
+        flash(f"Rol de usuario actualizado a {new_role}", "success")
 
     # Obtener todos los usuarios para mostrarlos en el panel
     users = User.select()
-    return render_template('admin/panel.html', users=users)
-
+    users_with_license_info = [
+        {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "email": user.email,
+            "phone": user.phone,
+            "rol": user.rol,
+            "license_duration": user.license_duration,
+            "license_expiry": user.license_expiry,
+            "days_remaining": user.days_remaining()  # Calcula los días restantes
+        }
+        for user in users
+    ]
+    return render_template('admin/panel.html', users=users_with_license_info)
 
 
 

@@ -143,6 +143,8 @@ def index():
     )
 
 @inventario_bp.route('/add_product', methods=['POST'])
+@login_required
+@user_tcp_required
 def add_product():
     """Agregar un producto al inventario."""
     name = request.form.get('name')
@@ -202,6 +204,8 @@ def add_category():
 
    
 @inventario_bp.route('/edit_product', methods=['POST'])
+@login_required
+@user_tcp_required
 def edit_product():
     product_id = request.form.get('product_id')
     product = Product.get_by_id(product_id)
@@ -212,6 +216,8 @@ def edit_product():
     return redirect(url_for('inventario.index', business_id=product.business.id))
 
 @inventario_bp.route('/delete_product/<int:product_id>' , methods=['POST'])
+@login_required
+@user_tcp_required
 def delete_product(product_id):
     if request.method == 'GET':
         flash("Usa un formulario con método POST para eliminar productos.", "danger")
@@ -227,6 +233,8 @@ def delete_product(product_id):
     
 # manejar fuchas de costo
 @inventario_bp.route('/cost_sheet/<int:product_id>', methods=['POST'])
+@login_required
+@user_tcp_required
 def manage_cost_sheet(product_id):
      # Obtener el negocio y el usuario actual
     selected_business_id = session.get('negocio_id')
@@ -280,6 +288,8 @@ def manage_cost_sheet(product_id):
         return redirect(url_for('inventario.index'))
         
 @inventario_bp.route('/add_concept/<int:cost_sheet_id>', methods=['POST','GET'])
+@login_required
+@user_tcp_required
 def add_concept(cost_sheet_id):
     if cost_sheet_id == 0:
         flash("No se puede agregar un concepto porque la ficha de costo no existe.", "warning")
@@ -317,6 +327,8 @@ def add_concept(cost_sheet_id):
 
     
 @inventario_bp.route('/save_concepts', methods=['POST'])
+@login_required
+@user_tcp_required
 def save_concepts():
     try:
         data = request.json
@@ -333,22 +345,21 @@ def save_concepts():
 
         # Guardar o actualizar conceptos
         for concept_data in concepts:
-            if concept_data['id']:
-                # Actualizar concepto existente
-                concept = Concept.get_by_id(concept_data['id'])
-                concept.concept = concept_data['concept']
-                concept.row = concept_data['row']
-                concept.base_cost = concept_data['base_cost']
-                concept.new_cost = concept_data['new_cost']
+            concept_id = concept_data.get('id')
+            if concept_id:  # Actualizar concepto existente
+                concept = Concept.get_by_id(concept_id)
+                concept.concept = concept_data.get('concept')
+                concept.row = concept_data.get('row')
+                concept.base_cost = concept_data.get('base_cost')
+                concept.new_cost = concept_data.get('new_cost')
                 concept.save()
-            else:
-                # Crear nuevo concepto
+            else:  # Crear nuevo concepto
                 Concept.create(
-                    cost_sheet=cost_sheet,
-                    concept=concept_data['concept'],
-                    row=concept_data['row'],
-                    base_cost=concept_data['base_cost'],
-                    new_cost=concept_data['new_cost']
+                    cost_sheet=cost_sheet_id,
+                    concept=concept_data.get('concept'),
+                    row=concept_data.get('row'),
+                    base_cost=concept_data.get('base_cost'),
+                    new_cost=concept_data.get('new_cost')
                 )
 
         # Guardar el precio de costo total en la ficha de costo
@@ -362,4 +373,23 @@ def save_concepts():
         return jsonify({'success': False, 'message': str(e)})
 
 
+@inventario_bp.route('/fetch_concepts/<int:cost_sheet_id>', methods=['GET'])
+@login_required
+@user_tcp_required
+def fetch_concepts(cost_sheet_id):
+    try:
+        # Obtener los conceptos asociados a la ficha de costo
+        concepts = Concept.select().where(Concept.cost_sheet == cost_sheet_id)
+        print(concepts)
+        # Formatear los datos para enviarlos como JSON
+        concepts_data = [{
+            'id': concept.id,
+            'concept': concept.concept,
+            'row': concept.row,
+            'base_cost': concept.base_cost,
+            'new_cost': concept.new_cost,
+        } for concept in concepts]
 
+        return jsonify({'status': 'success', 'concepts': concepts_data})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
