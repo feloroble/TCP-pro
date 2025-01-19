@@ -2,7 +2,7 @@
 
 {% block content %}
 <section id="features" class="ud-features">
-   <div class="container mt-4">
+   <div class="container mt-3">
     {% with messages = get_flashed_messages(with_categories=true) %}
        {% if messages %}
        <div class="alert alert-dismissible fade show" role="alert">
@@ -21,6 +21,7 @@
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Usuario</th>
+                    <th>Num. de Negocios</th>
                     <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Rol Actual</th>
@@ -39,6 +40,7 @@
                     <td>{{ user.first_name }}</td>
                     <td>{{ user.last_name }}</td>
                     <td>{{ user.username }}</td>
+                    <td>{{ user.business_count }}</td> 
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
                     <td>{{ user.rol }}</td>

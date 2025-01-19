@@ -1,8 +1,9 @@
 from datetime import datetime
+from mailbox import Message
 from flask import request, session
 
 from app.models.user import User
-
+from app.extensions import mail
 def track_url_middleware(app):
     @app.before_request
     def track_url():
@@ -17,14 +18,4 @@ def track_url_middleware(app):
                 print("Historial actualizado:", session['url_history'])  # Depuración
 
 
-def check_license_expiry():
-    now = datetime.now()
-    expired_users = User.select().where(
-        (User.rol == 'usuario TCP') & (User.license_expiry <= now)
-    )
-    for user in expired_users:
-        user.rol = 'usuario'  # Revertir al rol por defecto
-        user.license_duration = None
-        user.license_expiry = None
-        user.save()
-        print(f"Licencia TCP expirada para el usuario: {user.username}")
+

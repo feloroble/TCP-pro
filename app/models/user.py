@@ -1,8 +1,8 @@
 
-from peewee import  CharField, AutoField,ForeignKeyField, DateTimeField, TextField
+from peewee import  CharField, AutoField,ForeignKeyField, DateTimeField, TextField,BooleanField
 from datetime import date, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import IntegerField
+
 
 from app.database import  BaseModel
 
@@ -21,7 +21,7 @@ class User(BaseModel):
     cargo = CharField(max_length=50)
     license_duration = CharField(null=True)  # Duración en meses para el rol TCP
     license_expiry = DateTimeField(null=True)   # Fecha de expiración del rol TCP
-    
+    verified = BooleanField(default=False)
     class Meta:
         table_name = 'user'
 

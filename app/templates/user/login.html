@@ -36,6 +36,18 @@
             <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
            
         </form>
+
+        <hr>
+
+            <!-- Nuevo formulario para reenviar el correo de verificación -->
+        <form method="POST" action="{{ url_for('user.resend_verification_email') }}">
+          <h5>¿No has verificado tu correo?</h5>
+           <div class="mb-3">
+             <label for="resend_email">Introduce tu correo para reenviar el enlace de verificación</label>
+             <input type="email" id="resend_email" name="resend_email" class="form-control" required>
+          </div>
+             <button type="submit" class="btn btn-secondary w-100">Reenviar Verificación</button>
+       </form>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="mt-2">

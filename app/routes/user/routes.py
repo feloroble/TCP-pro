@@ -1,11 +1,13 @@
 
-
+from peewee import fn,JOIN
 from datetime import datetime, timedelta
-from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+from flask import current_app, jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
-from app.middleware import check_license_expiry
+
+from app.config import confirm_token, generate_confirmation_token
 from app.models import user
+from app.models.tcp import TCPBusiness
 from app.models.user import Operation, User
 from app.email_service import generate_reset_token, send_email, verify_reset_token
 from .. import login_required, admin_required
@@ -63,21 +65,95 @@ def registro():
                 flash(error, 'error')
             return render_template('register.html',errors=errors) 
         # Crear usuario
-        hashed_password = generate_password_hash(password)
-        new_user = User.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            username=username,
-            password=hashed_password,
-            phone=phone
-        ) 
+        try:
+            hashed_password = generate_password_hash(password)
+            new_user = User.create(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                username=username,
+                password=hashed_password,
+                phone=phone,
+                verified=False
+                ) 
+            token = generate_confirmation_token(new_user.email)
+            confirm_url = url_for('user.confirm_email', token=token, _external=True)
+        
+            # Enviar correo de verificación
+            subject = "Verificación de correo electrónico"
+            recipients = [new_user.email]
+            template = 'email/verify_email.html'
+            context = {'username': new_user.username, 'confirm_url': confirm_url}
+            send_email(subject, recipients, template, **context)
 
-        # Redirigir al inicio de sesión con mensaje de éxito
-        flash("Usuario registrado con éxito. Por favor, inicia sesión.", 'success')
-        return redirect(url_for('user.login'))
+            flash('Te hemos enviado un correo para verificar tu cuenta.', 'success')
+            return redirect(url_for('user.login'))
+        except Exception as e:
+            current_app.logger.error(f"Error registrando usuario: {e}")
+            flash('Ocurrió un error al registrar al usuario.', 'danger')
+
+        
      return render_template('register.html')
 
+@user_bp.route('/resend-verification-email', methods=['POST'])
+def resend_verification_email():
+    email = request.form.get('resend_email')
+    user = User.get_or_none(User.email == email)
+    
+    if not user:
+        flash('El correo ingresado no está registrado.', 'danger')
+        return redirect(url_for('user.login'))
+    
+    if user.verified:
+        flash('Tu cuenta ya está verificada.', 'info')
+        return redirect(url_for('user.login'))
+    
+    # Generar y enviar el enlace de verificación
+    token = generate_confirmation_token(user.email)
+    verification_url = url_for('user.confirm_email', token=token, _external=True)
+    subject = "Verifica tu cuenta"
+    recipients = [user.email]
+    template = 'email/verify_email.html'
+    context = {'username': user.username, 'confirm_url': verification_url}
+    send_email(subject, recipients, template, **context)
+    flash('Te hemos enviado un enlace de verificación a tu correo.', 'info')
+    return redirect(url_for('user.login'))
+    
+
+
+
+
+@user_bp.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+        if not email:
+            flash('El enlace de verificación es inválido o ha expirado.', 'danger')
+            return redirect(url_for('login'))
+
+        user = User.get(User.email == email)
+        
+        if user.verified:
+            flash('Tu cuenta ya está verificada. Por favor, inicia sesión.', 'info')
+        else:
+            user.verified = True
+            user.save()
+            user_reloaded = User.get(User.id == user.id)
+            print(f"Verified value after save: {user_reloaded.verified}")
+
+            # Enviar correo de bienvenida
+            subject = "¡Bienvenido a nuestra aplicación!"
+            recipients = [user.email]
+            template = 'email/welcome.html'
+            context = {'username': user.username}
+            send_email(subject, recipients, template, **context)
+
+            flash('Tu cuenta ha sido verificada exitosamente.', 'success')
+        return redirect(url_for('user.login'))
+    except Exception as e:
+        current_app.logger.error(f"Error verificando correo: {e}")
+        flash('Ocurrió un error al verificar tu correo.', 'danger')
+        return redirect(url_for('user.login'))
 # inicio de seccion del usuario
 @user_bp.route('/login',methods = ('GET', 'POST'))
 def login():
@@ -88,9 +164,13 @@ def login():
         # Buscar usuario por nombre de usuario o correo
         user = User.select().where(
             (User.username == username_or_email) | 
-            (User.email == username_or_email)
+            (User.email == username_or_email) 
         ).first()
-        
+        print(user.verified)
+
+        if not user.verified:
+                flash('Tu cuenta no ha sido verificada. Por favor, revisa tu correo.', 'warning')
+                return redirect(url_for('user.login'))
          # Buscar usuario por nombre de usuario o correo
         if not user:
             # Usuario o correo no encontrados
@@ -101,7 +181,8 @@ def login():
             # Contraseña incorrecta
             flash('Usuario o contraseña incorrectos.', 'danger')
             return render_template('login.html')
-            
+        
+                
 
         session['user_id'] = user.id
         session['username'] = user.username
@@ -295,7 +376,14 @@ def admin_panel():
         flash(f"Rol de usuario actualizado a {new_role}", "success")
 
     # Obtener todos los usuarios para mostrarlos en el panel
-    users = User.select()
+    users = (
+         User.select(
+            User,
+            fn.COUNT(TCPBusiness.id).alias('business_count')  # Contar negocios
+        )
+        .join(TCPBusiness, JOIN.LEFT_OUTER, on=(TCPBusiness.user_id == User.id))  # Unir con negocios
+        .group_by(User)  # Agrupar por usuario    
+    )
     users_with_license_info = [
         {
             "id": user.id,
@@ -307,7 +395,8 @@ def admin_panel():
             "rol": user.rol,
             "license_duration": user.license_duration,
             "license_expiry": user.license_expiry,
-            "days_remaining": user.days_remaining()  # Calcula los días restantes
+            "days_remaining": user.days_remaining(),  # Calcula los días restantes
+            "business_count": user.business_count
         }
         for user in users
     ]

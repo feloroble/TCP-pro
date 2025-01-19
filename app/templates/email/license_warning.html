@@ -1,0 +1,20 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Renueva tu Licencia</h1>
+        </div>
+        <p>Hola, <strong>{{ user.first_name }}</strong>,</p>
+        <p>Queremos informarte que tu licencia de usuario TCP está próxima a expirar el <strong>{{ user.license_expiry.strftime('%d-%m-%Y') }}</strong>.</p>
+        <p>Por favor, renueva tu licencia antes de esa fecha para evitar interrupciones en tu acceso a la plataforma.</p>
+        <p>Si necesitas ayuda, no dudes en contactarnos.</p>
+        <p><a href="{{ renewal_link }}" target="_blank">Renovar Licencia Ahora</a></p>
+        <div class="footer">
+            <p>Gracias,</p>
+            <p><em>El equipo de Tecno T@ctil </em></p>
+        </div>
+    </div>
+</body>
+{% endblock %}

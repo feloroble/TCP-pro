@@ -1,0 +1,16 @@
+{% extends "email/base_email.html" %}
+
+{% block content %}
+<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="text-align: center; color: #4CAF50;">¡Bienvenido, {{ username }}!</h2>
+        <p>Gracias por registrarte en <strong>{{ app_name }}</strong>.</p>
+        <p>Ahora puedes acceder a tu cuenta haciendo clic en el botón de abajo:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="{{ login_url }}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Iniciar sesión</a>
+        </div>
+        <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos en <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+        <p style="text-align: center; font-size: 12px; color: #999;">© {{ current_year }} {{ app_name }}. Todos los derechos reservados.</p>
+    </div>
+</body>
+{% endblock %}

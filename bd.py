@@ -13,8 +13,8 @@ db = MySQLDatabase(
     port=3306
 )
 
-def create_tables():
-    with db:
-        db.create_tables([CostSheet])
-
-create_tables()
+for user in User.select():
+    if user.rol == "usuario TCP" and not user.license_expiry:
+        user.license_duration = 0
+        user.license_expiry = None
+        user.save()

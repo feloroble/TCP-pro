@@ -1,7 +1,9 @@
+from datetime import datetime
 from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+from app.email_service import send_email
 from app.models.tcp import TCPBusiness
 from app.models.user import Operation, User
-from app.routes import user
+
 from .. import login_required, user_tcp_required
 
 
@@ -31,6 +33,15 @@ def panel_tcp():
             flash('No tienes permiso para acceder a este negocio.', 'danger')
 
         return redirect(url_for('tcp.panel_tcp'))
+    
+    user = g.user # Obtén el usuario actual
+    if user.rol == "usuario TCP" and user.license_expiry:
+        days_left = (user.license_expiry - datetime.now()).days
+        if 0 < days_left <= 7:
+            
+            
+            
+            flash(f"Tu licencia expira en {days_left} días. ¡Renueva pronto!", "warning")
 
     # Diccionario de eventos
     EVENT_TYPES_DICT = {
@@ -153,7 +164,7 @@ def select_business():
     business_id = request.form.get('business_id')
     try:
         # Validar que el negocio pertenece al usuario autenticado
-        business = TCPBusiness.get(TCPBusiness.id == business_id, TCPBusiness.user == g.user)
+        business = TCPBusiness.get(TCPBusiness.id == business_id, TCPBusiness.user_id == g.user)
         session['selected_business_id'] = business.id
         session['selected_business_name'] = business.name
         return jsonify({"success": True, "message": f"Negocio '{business.name}' seleccionado"})
