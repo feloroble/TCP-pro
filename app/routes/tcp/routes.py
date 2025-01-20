@@ -16,34 +16,42 @@ tcp_bp = Blueprint('tcp', __name__, template_folder='../../templates/tcp', stati
 @login_required
 @user_tcp_required
 def panel_tcp():
-    negocio_id = session.get('negocio_id')
+    # Obtener los negocios asociados al usuario autenticado
+    user_negocios_ids = [n.id for n in g.negocios]
+    negocio_seleccionado = session.get('negocio_id')
 
+    # Si no hay un negocio seleccionado, inicializamos en None
+    negocio_tcp = None
+
+    # Selección de negocio mediante POST
     if request.method == 'POST':
-        # Selección de negocio
-        negocio_id = request.form.get('negocio_id')
-        if negocio_id:
-            
-            nombre_negoco = TCPBusiness.select().where(TCPBusiness.id == negocio_id)
-
-            for nomb_tcp in nombre_negoco:
-                nombre = nomb_tcp.project_name 
+        negocio_id_form = request.form.get('negocio_id')  # ID del negocio seleccionado en el formulario
+        if negocio_id_form and negocio_id_form.isdigit():
+            negocio_id_form = int(negocio_id_form)  # Convertir a entero
+            if negocio_id_form in user_negocios_ids:  # Validar que el negocio pertenece al usuario
+                session['negocio_id'] = negocio_id_form
+                negocio_seleccionado = negocio_id_form
                 
-            flash(f"Negocio {nombre } seleccionado correctamente.", "success")
+                print(negocio_tcp)
+                flash(f"Negocio con ID {negocio_id_form} seleccionado correctamente.", "success")
+            else:
+                flash("No tienes permiso para seleccionar este negocio.", "danger")
         else:
-            flash('No tienes permiso para acceder a este negocio.', 'danger')
-
+            flash("Negocio no válido seleccionado.", "warning")
         return redirect(url_for('tcp.panel_tcp'))
-    
-    user = g.user # Obtén el usuario actual
+
+    # Si hay un negocio seleccionado en la sesión, obtener sus detalles
+    if negocio_seleccionado:
+        negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.id == negocio_seleccionado)
+
+    # Manejar la licencia del usuario
+    user = g.user  # Usuario autenticado
     if user.rol == "usuario TCP" and user.license_expiry:
         days_left = (user.license_expiry - datetime.now()).days
         if 0 < days_left <= 7:
-            
-            
-            
             flash(f"Tu licencia expira en {days_left} días. ¡Renueva pronto!", "warning")
 
-    # Diccionario de eventos
+    # Diccionario de eventos para operaciones
     EVENT_TYPES_DICT = {
         'login': 'Inicio de sesión',
         'update_profile': 'Actualización de perfil',
@@ -51,14 +59,9 @@ def panel_tcp():
         'logout': 'Cierre de sesión',
         'rest_password': 'Restablecimiento de contraseña',
     }
-    
-   # Carga el negocio actualmente seleccionado
-    negocio_tcp = None
-    if negocio_id:
-        negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id, TCPBusiness.user == g.user.id)
 
-    # Manejo de filtro de actividades
-    event_filter = request.args.get('event_filter', 'all')  # 'all' es el valor por defecto
+    # Manejar actividades filtradas por tipo de evento
+    event_filter = request.args.get('event_filter', 'all')
     query = Operation.select().where(Operation.user == g.user.id)
 
     if event_filter != 'all':
@@ -66,7 +69,7 @@ def panel_tcp():
 
     operations = query.order_by(Operation.created_at.desc())
 
-    # Mapea los eventos
+    # Mapeo de nombres de eventos
     operations_with_names = [
         {
             "event_name": EVENT_TYPES_DICT.get(op.event_type, "Evento desconocido"),
@@ -75,12 +78,14 @@ def panel_tcp():
         }
         for op in operations
     ]
-    
 
-
-    return render_template ("panel/panel_tcp.html",negocio_tcp =negocio_tcp, negocios=g.negocios,operations=operations_with_names, filter_selected=event_filter)
-
-
+    return render_template(
+        "panel/panel_tcp.html",
+        negocio_tcp=negocio_tcp,
+        negocios=g.negocios,
+        operations=operations_with_names,
+        filter_selected=event_filter,
+    )
 
 @tcp_bp.before_request
 def load_user_negocios():

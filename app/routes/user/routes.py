@@ -181,24 +181,23 @@ def login():
             # Contraseña incorrecta
             flash('Usuario o contraseña incorrectos.', 'danger')
             return render_template('login.html')
-        
-                
+       
+        negocios_ids = [negocio.id for negocio in  TCPBusiness.select( TCPBusiness.id).where( TCPBusiness.user_id == user)]
+        print(negocios_ids)     
 
         session['user_id'] = user.id
         session['username'] = user.username
         session['nombre_completo'] = f"{user.first_name} {user.last_name}"
         session['cargo'] = user.cargo
+        session['negocio_id'] = negocios_ids 
         session['url_history'] = []
         flash('Inicio de sesión exitoso.', 'success')
         
         Operation.create(user=user, event_type='login', description='Inicio de sesión exitoso.')
         return redirect(url_for('main.panel_user'))
-
-        
-
-        
-    
     return render_template('login.html')
+
+
 # Restablecer contraseña
 @user_bp.route('/reset_password',methods = ('GET', 'POST'))
 def reset_password():
@@ -292,12 +291,13 @@ def load_logged_in_user():
     else:
         g.user = None
 
-@user_bp.before_app_request
 def check_user_license_warning():
     if not hasattr(g, 'user') and g.user.rol == 'usuario TCP':
         days_remaining = (user.license_expiry - datetime.now()).days
         if days_remaining <= 7:  # Advertir con 7 días de antelación
             flash(f"Tu licencia TCP expira en {days_remaining} días.", "warning")
+
+
 
 @user_bp.route('/send-notification', methods=['GET'])
 def send_notification():
