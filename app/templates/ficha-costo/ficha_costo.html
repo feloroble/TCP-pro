@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section id="features" class="ud-features">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+       {% if messages %}
+       <div class="alert alert-dismissible fade show" role="alert">
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+         {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="container mt-4">
+
+        
+      <form method="POST">
+        <h3>Información del Producto</h3>
+    <div>
+        <label>Producto:</label>
+        <input type="text" value="{{ product.name }}" readonly>
+    </div>
+    <div>
+        <label>Código:</label>
+        <input type="text" value="{{ cost_sheet.code }}" readonly>
+    </div>
+    <div>
+        <label>UM:</label>
+        <input type="text" value="{{ product.um }}" readonly>
+    </div>
+    <div>
+        <label>Nivel de Producción:</label>
+        <input type="number" name="level_of_production" value="{{ cost_sheet.production_level }}">
+    </div>
+    <div>
+        <label>% Utilización Capacidad:</label>
+        <input type="number" name="capacity_utilization" value="{{ cost_sheet.utilization_percentage }}">
+    </div>
+
+    <h3>Conceptos de Costo</h3>
+    <table class="table table-striped table-bordered" >
+        <thead>
+            <tr>
+                <th>Concepto</th>
+                <th>Fila</th>
+                <th>Costo Base</th>
+                <th>Costo Nuevo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for concept in concepts %}
+            <tr>
+                <td><input type="text" name="concept[]" value="{{ concept.concept }}"></td>
+                <td><input type="text" name="row_type[]" value="{{ concept.row  }}"></td>
+                <td><input type="number" name="base_cost[]" value="{{ concept.base_cost }}"></td>
+                <td><input type="number" name="new_cost[]" value="{{ concept.new_cost }}"></td>
+            </tr>
+            {% endfor %}
+            <!-- Fila para agregar nuevos conceptos -->
+            <tr>
+                <td><input type="text" name="concept[]"></td>
+                <td><input type="text" name="row_type[]"></td>
+                <td><input type="number" name="base_cost[]"></td>
+                <td><input type="number" name="new_cost[]"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button type="submit">Guardar</button>
+      </form>
+    </div>
+</section>
+{% endblock %}

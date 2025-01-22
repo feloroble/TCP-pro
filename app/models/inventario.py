@@ -37,8 +37,7 @@ class Product(BaseModel):
     business = ForeignKeyField(TCPBusiness, backref='products', on_delete='CASCADE')
     user = ForeignKeyField(User, backref='products', on_delete='CASCADE')  # Referencia como cadena
     created_at = DateTimeField(default=datetime.now)
-    
-       
+    um = CharField(null=False)   
 
 
 

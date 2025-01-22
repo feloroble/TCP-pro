@@ -38,10 +38,12 @@ def create_app():
     from app.routes.main.routes import main_bp
     from app.routes.tcp.routes import tcp_bp
     from app.routes.inventario.routes import inventario_bp
+    from app.routes.ficha_costo.routes import ficha_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(tcp_bp, url_prefix='/tcp')
     app.register_blueprint(inventario_bp, url_prefix='/tcp/inventario')
+    app.register_blueprint(ficha_bp, url_prefix='/ficha-costo')
     
     return app
     

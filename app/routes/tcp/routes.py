@@ -26,23 +26,31 @@ def panel_tcp():
     # Selección de negocio mediante POST
     if request.method == 'POST':
         negocio_id_form = request.form.get('negocio_id')  # ID del negocio seleccionado en el formulario
-        if negocio_id_form and negocio_id_form.isdigit():
-            negocio_id_form = int(negocio_id_form)  # Convertir a entero
-            if negocio_id_form in user_negocios_ids:  # Validar que el negocio pertenece al usuario
-                session['negocio_id'] = negocio_id_form
-                negocio_seleccionado = negocio_id_form
+
+        if negocio_id_form:
+           if negocio_id_form.isdigit():
+              negocio_id_form = int(negocio_id_form)  # Convertir a entero
+            
+              if negocio_id_form in user_negocios_ids:  # Validar que el negocio pertenece al usuario
+                  session['negocio_id'] = negocio_id_form
+                  negocio_seleccionado = negocio_id_form
                 
-                print(negocio_tcp)
-                flash(f"Negocio con ID {negocio_id_form} seleccionado correctamente.", "success")
-            else:
+                # Obtiene los datos del negocio seleccionado
+                  negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.id == negocio_id_form)
+                
+                  if negocio_tcp:
+                     flash(f"Negocio '{negocio_tcp.project_name}' seleccionado correctamente.", "success")
+                  else:
+                    flash("El negocio seleccionado no existe. Verifica tu selección.", "danger")
+              else:
                 flash("No tienes permiso para seleccionar este negocio.", "danger")
         else:
-            flash("Negocio no válido seleccionado.", "warning")
-        return redirect(url_for('tcp.panel_tcp'))
+            flash("El ID del negocio seleccionado no es válido.", "warning")
+    else:
+        flash("Por favor, selecciona un negocio antes de continuar.", "warning")
 
-    # Si hay un negocio seleccionado en la sesión, obtener sus detalles
-    if negocio_seleccionado:
-        negocio_tcp = TCPBusiness.get_or_none(TCPBusiness.id == negocio_seleccionado)
+    
+    
 
     # Manejar la licencia del usuario
     user = g.user  # Usuario autenticado
