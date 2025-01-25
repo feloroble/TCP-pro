@@ -1,13 +1,6 @@
-from datetime import datetime, time
-from pkgutil import get_data
-import uuid
-from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
-
+from flask import  render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from app.models.inventario import Category, Concept, CostSheet, Product, TCPBusiness
-from peewee import fn, JOIN, DoesNotExist
-
-from app.models.user import User
-
+from peewee import fn, JOIN
 from .. import login_required, user_tcp_required
 
 
@@ -152,9 +145,10 @@ def add_product():
     category_id = request.form.get('category_id')
     stock = request.form.get('stock', 0)
     price = request.form.get('price', 0)
+    um = request.form.get('um')
     typo = request.form.get('type')
     business_id = request.form.get('business_id')
-    
+    user_id = g.user.id 
 
     if not all([name, category_id, business_id]):
         flash("Todos los campos son obligatorios.", "danger")
@@ -174,6 +168,9 @@ def add_product():
         flash("Ya existe un producto con este nombre en este negocio.", "danger")
         return redirect(url_for('inventario.index'))
     
+     # Generar el código único para el producto
+    product_code = Product.generate_product_code(business_id, user_id)
+    
     Product.create(
             name=name,
             category=category,
@@ -181,7 +178,10 @@ def add_product():
             user=g.user.id,
             stock=stock,
             price=price,
-            tipo=typo
+            tipo=typo,
+            um=um,
+            created_by=user_id,
+            code=product_code
             )
             
     flash("Producto agregado exitosamente.", "success")

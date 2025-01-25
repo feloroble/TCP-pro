@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section id="features" class="ud-features">
+<section id="features" class="ud-features text-center w-100  container-fluid">
    <div class="container mt-3">
     {% with messages = get_flashed_messages(with_categories=true) %}
        {% if messages %}
@@ -12,7 +12,7 @@
       </div>
       {% endif %}
     {% endwith %}
-
+    <h2 class="text-center">Panel de Administración</h2>
     <form method="get" action="{{ url_for('user.admin_panel') }}" class="mb-4">
         <div class="row">
             <!-- Filtro por rol -->
@@ -47,7 +47,7 @@
     </form>
 
 
-    <h2 class="text-center">Panel de Administración</h2>
+    
        <div class="table-responsive  mt-4">
         <table class="table table-striped">
             <thead>

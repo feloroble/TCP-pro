@@ -35,18 +35,26 @@ class Product(BaseModel):
     price = FloatField()
     costo = FloatField()
     business = ForeignKeyField(TCPBusiness, backref='products', on_delete='CASCADE')
-    user = ForeignKeyField(User, backref='products', on_delete='CASCADE')  # Referencia como cadena
     created_at = DateTimeField(default=datetime.now)
     um = CharField(null=False)   
+    created_by = ForeignKeyField(User, backref='products')
+    code = CharField(unique=True)
 
-
+    @classmethod
+    def generate_product_code(cls, business_id, user_id):
+        """
+        Genera un código único para un producto con el formato:
+        INV-(consecutivo dentro del negocio)-(id del negocio)-(id del usuario)
+        """
+        # Obtener el número consecutivo de productos dentro del negocio
+        product_count = cls.select().where(cls.business_id == business_id).count() + 1
+        return f"INV-{product_count}-{business_id}-{user_id}"
 
 class CostSheet(BaseModel):
     product = ForeignKeyField(Product, backref='cost_sheet', unique=True, on_delete='CASCADE')
     business = ForeignKeyField(TCPBusiness, backref='cost_sheets', on_delete='CASCADE')
     user = ForeignKeyField(User, backref='edited_cost_sheets', on_delete='SET NULL', null=True)
-    sequence_number = IntegerField() 
-    code = CharField(unique=True)
+    
     unit_of_measure = CharField()
     production_level = IntegerField()
     utilization_percentage = FloatField()
@@ -56,14 +64,7 @@ class CostSheet(BaseModel):
     nombre_user = CharField(max_length=50)
     precio_de_costo = FloatField()
    
-    @staticmethod
-    def generate_sequence_number(business_id):
-        """
-        Calcula el siguiente número de la secuencia para el negocio dado.
-        """
-        # Obtener el último número de secuencia para el negocio seleccionado
-        last_sheet = CostSheet.select().where(CostSheet.business_id == business_id).order_by(CostSheet.sequence_number.desc()).first()
-        return (last_sheet.sequence_number + 1) if last_sheet else 1
+    
 
 
 

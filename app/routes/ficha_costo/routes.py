@@ -68,7 +68,7 @@ def manage_cost_sheet(product_id):
     indirect_concepts = Concept.select().where(Concept.cost_sheet == cost_sheet, Concept.concept_type == 'indirect')
 
     return render_template(
-        'costo2.html',
+        'costo.html',
         product=product,
         cost_sheet=cost_sheet,
         direct_concepts=direct_concepts,

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block titulo %} FICHA DE COSTO {% endblock %}
+
+{% block content %}
+<section id="features" class="ud-features">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert alert-dismissible fade show" role="alert">
+          {% for category, message in messages %}
+             <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+          {% endfor %}
+       </div>
+   {% endif %}
+   {% endwith %}
+
+   <div class="container mt-4">
+      <h1>Ficha de Costo para {{ product.name }}</h1>
+
+      <!-- Opciones Generales -->
+      <form method="POST">
+          <input type="hidden" name="form_type" value="general_options">
+          <h2>Opciones Generales</h2>
+          <label for="production_level">Nivel de Producción:</label>
+          <input type="number" name="production_level" class="form-control mb-2" value="{{ cost_sheet.production_level }}">
+          
+          <label for="utilization_percentage">Porcentaje de Utilización:</label>
+          <input type="number" step="0.01" name="utilization_percentage" class="form-control mb-3" value="{{ cost_sheet.utilization_percentage }}">
+          
+          <button type="submit" class="btn btn-success mb-3">Guardar Opciones Generales</button>
+      </form>
+
+      <!-- Tabla Principal -->
+      <form method="POST">
+          <input type="hidden" name="form_type" value="cost_sheet">
+          <h2>Detalles de Costos</h2>
+          <div class="table-responsive">
+              <table class="table table-striped table-bordered">
+                  <thead>
+                      <tr>
+                          <th>Fila</th>
+                          <th>Concepto</th>
+                          <th>Costo Base</th>
+                          <th>Costo Nuevo</th>
+                          <th>Acciones</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <!-- Gastos Materiales -->
+                      <tr>
+                          <td>1</td>
+                          <td>Gastos Materiales</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td></td>
+                      </tr>
+                      {% for concept in material_costs %}
+                      <tr>
+                          <td>{{ concept.row }}</td>
+                          <td><input type="text" name="material_concept[]" value="{{ concept.name }}" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="material_base_cost[]" value="{{ concept.base_cost }}" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="material_new_cost[]" value="{{ concept.new_cost }}" class="form-control"></td>
+                          <td>
+                              <form action="{{ url_for('ficha-costo.delete_concept', concept_id=concept.id) }}" method="POST" style="display:inline;">
+                                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                              </form>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                      <tr>
+                          <td>1.x</td>
+                          <td><input type="text" name="material_concept[]" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="material_base_cost[]" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="material_new_cost[]" class="form-control"></td>
+                          <td></td>
+                      </tr>
+
+                      <!-- Salario Directo -->
+                      <tr>
+                          <td>2</td>
+                          <td>Salario Directo</td>
+                          <td>-</td>
+                          <td><input type="number" step="0.01" name="direct_salary" class="form-control" value="{{ direct_salary }}"></td>
+                          <td></td>
+                      </tr>
+
+                      <!-- Gastos Directos -->
+                      <tr>
+                          <td>3</td>
+                          <td>Gastos Directos</td>
+                          <td>-</td>
+                          <td>-</td>
+                          <td></td>
+                      </tr>
+                      {% for concept in direct_costs %}
+                      <tr>
+                          <td>{{ concept.row }}</td>
+                          <td><input type="text" name="direct_concept[]" value="{{ concept.name }}" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="direct_base_cost[]" value="{{ concept.base_cost }}" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="direct_new_cost[]" value="{{ concept.new_cost }}" class="form-control"></td>
+                          <td>
+                              <form action="{{ url_for('ficha-costo.delete_concept', concept_id=concept.id) }}" method="POST" style="display:inline;">
+                                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                              </form>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                      <tr>
+                          <td>3.x</td>
+                          <td><input type="text" name="direct_concept[]" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="direct_base_cost[]" class="form-control"></td>
+                          <td><input type="number" step="0.01" name="direct_new_cost[]" class="form-control"></td>
+                          <td></td>
+                      </tr>
+
+                      <!-- Gastos Totales -->
+                      <tr class="table-secondary">
+                          <td>5</td>
+                          <td>Total Gastos Directos</td>
+                          <td>-</td>
+                          <td class="total-direct-costs"></td>
+                          <td></td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Guardar Costos</button>
+      </form>
+   </div>
+</section>
+{% endblock %}
