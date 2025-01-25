@@ -354,7 +354,6 @@ def admin_panel():
         # Verificar si el usuario existe
         user = User.get_or_none(User.id == user_id)
         if not user:
-            user.rol = new_role
             flash("El usuario especificado no existe.", "danger")
             return redirect(url_for('user.admin_panel'))
         # Actualiza el rol del usuario
@@ -384,6 +383,35 @@ def admin_panel():
         .join(TCPBusiness, JOIN.LEFT_OUTER, on=(TCPBusiness.user_id == User.id))  # Unir con negocios
         .group_by(User)  # Agrupar por usuario    
     )
+
+        # Obtener parámetros de filtro
+    role_filter = request.args.get('role')  # Filtro por rol
+    name_filter = request.args.get('name')  # Filtro por nombre
+    email_filter = request.args.get('email')  # Filtro por email
+
+    # Base de la consulta
+    query = (
+        User.select(
+            User,
+            fn.COUNT(TCPBusiness.id).alias('business_count')  # Contar negocios
+        )
+        .join(TCPBusiness, JOIN.LEFT_OUTER, on=(TCPBusiness.user_id == User.id))
+        .group_by(User.id)
+    )
+
+    # Aplicar filtros
+    if role_filter:
+        query = query.where(User.rol == role_filter)
+    if name_filter:
+        query = query.where(
+            (User.first_name.contains(name_filter)) | 
+            (User.last_name.contains(name_filter))
+        )
+    if email_filter:
+        query = query.where(User.email.contains(email_filter))
+
+    # Ejecutar la consulta
+    users = query
     users_with_license_info = [
         {
             "id": user.id,

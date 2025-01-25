@@ -12,6 +12,41 @@
       </div>
       {% endif %}
     {% endwith %}
+
+    <form method="get" action="{{ url_for('user.admin_panel') }}" class="mb-4">
+        <div class="row">
+            <!-- Filtro por rol -->
+            <div class="col-md-3">
+                <label for="role" class="form-label">Rol</label>
+                <select name="role" id="role" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="usuario" {% if request.args.get('role') == 'usuario' %}selected{% endif %}>Usuario</option>
+                    <option value="administrador" {% if request.args.get('role') == 'administrador' %}selected{% endif %}>Administrador</option>
+                    <option value="estadistico" {% if request.args.get('role') == 'estadistico' %}selected{% endif %}>Estadístico</option>
+                    <option value="usuario TCP" {% if request.args.get('role') == 'usuario TCP' %}selected{% endif %}>Usuario TCP</option>
+                </select>
+            </div>
+            
+            <!-- Filtro por nombre -->
+            <div class="col-md-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" name="name" id="name" class="form-control" value="{{ request.args.get('name', '') }}">
+            </div>
+    
+            <!-- Filtro por email -->
+            <div class="col-md-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control" value="{{ request.args.get('email', '') }}">
+            </div>
+    
+            <!-- Botón de buscar -->
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+
     <h2 class="text-center">Panel de Administración</h2>
        <div class="table-responsive  mt-4">
         <table class="table table-striped">
