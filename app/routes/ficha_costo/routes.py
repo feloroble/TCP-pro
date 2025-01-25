@@ -64,8 +64,8 @@ def manage_cost_sheet(product_id):
         return redirect(url_for('ficha-costo.manage_cost_sheet', product_id=product.id))
 
     # Cargar conceptos directos e indirectos
-    direct_concepts = Concept.select().where(Concept.cost_sheet == cost_sheet, Concept.row <= 100)
-    indirect_concepts = Concept.select().where(Concept.cost_sheet == cost_sheet, Concept.row > 100)
+    direct_concepts = Concept.select().where(Concept.cost_sheet == cost_sheet, Concept.concept_type == 'direct')
+    indirect_concepts = Concept.select().where(Concept.cost_sheet == cost_sheet, Concept.concept_type == 'indirect')
 
     return render_template(
         'costo2.html',
@@ -89,7 +89,7 @@ def delete_concept(concept_id):
     return redirect(request.referrer or url_for('inventario.index'))
 
 
-def handle_concepts(request, cost_sheet, is_direct):
+def handle_concepts(request, cost_sheet, concept_type):
     """Procesar conceptos directos o indirectos según el formulario recibido."""
     concepts = request.form.getlist('concept[]')
     rows = request.form.getlist('row[]')
@@ -113,6 +113,7 @@ def handle_concepts(request, cost_sheet, is_direct):
                         concept.row = row
                         concept.base_cost = base_cost
                         concept.new_cost = new_cost
+                        concept.concept_type = concept_type  # Asegurar tipo
                         concept.save()
                 else:  # Crear nuevo
                     Concept.create(
@@ -120,7 +121,8 @@ def handle_concepts(request, cost_sheet, is_direct):
                         concept=concept_name,
                         row=row,
                         base_cost=base_cost,
-                        new_cost=new_cost
+                        new_cost=new_cost,
+                        concept_type=concept_type
                     )
             except IndexError:
                 flash("Error al procesar los datos del formulario. Por favor, intenta nuevamente.", "danger")

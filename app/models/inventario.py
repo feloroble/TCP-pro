@@ -69,9 +69,14 @@ class CostSheet(BaseModel):
 
 
 class Concept(BaseModel):
+    FORM_TYPES = (
+        ('direct', 'Gastos Directos'),
+        ('indirect', 'Gastos Indirectos'),
+    )
     cost_sheet = ForeignKeyField(CostSheet, backref='concepts')
     concept = CharField()
     row = IntegerField()
     base_cost = FloatField()
     new_cost = FloatField()
+    concept_type = CharField(choices=FORM_TYPES)
     created_at = DateTimeField(default=datetime.now)
