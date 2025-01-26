@@ -63,7 +63,7 @@ class Product(BaseModel):
         INV-(consecutivo dentro del negocio)-(id del negocio)-(id del usuario)
         """
         product_count = cls.select().where(cls.business_id == business_id).count() + 1
-        return f"INV-{product_count}-{business_id}-{user_id}"
+        return f"INV-{product_count}-{business_id}-{user_id}-TT"
 
     def save(self, *args, **kwargs):
         """Sobreescribe el método save para generar automáticamente el código."""
