@@ -16,6 +16,7 @@ class User(BaseModel):
     email = CharField(max_length=100, unique=True)
     username = CharField(max_length=50, unique=True)
     phone = CharField(max_length=15, unique=True)  # Nuevo campo
+    document_id = CharField(max_length=9, unique=True)
     password = CharField(max_length=255)
     rol = CharField(max_length=20, default='usuario')
     cargo = CharField(max_length=50)
@@ -49,6 +50,7 @@ class Operation(BaseModel):
         ('update_type_user', 'Cambio de tipo de usuario en el sistema'),
         ('logout', 'Cierre de sesión'),
         ('rest_password', 'Restablecimiento de contraseña'),
+        ('crear_producto', 'Crear un producto'),
     )
 
      user = ForeignKeyField(User, backref='operations')

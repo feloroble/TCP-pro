@@ -39,6 +39,6 @@ class TCPBusiness(BaseModel):
     
 
     class Meta:
-        indexes = (         # Agrega un índice único compuesto entre el nombre y el negocio
-            (('name', 'business'), True),
-              )
+        table_name = 'tcpbusiness'
+        
+              

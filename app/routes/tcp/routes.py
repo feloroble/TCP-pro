@@ -152,7 +152,7 @@ def create_tcp_business():
         try:
             tcp_business.save()
             flash("Negocio TCP creado exitosamente", "success")
-            return redirect(url_for('tcp.view_tcp_business'))
+            return redirect(url_for('tcp.panel_tcp'))
         except Exception as e:
             flash(f"Hubo un error al crear el negocio: {str(e)}", "danger")
             return redirect(url_for('tcp.create_tcp_business'))

@@ -13,11 +13,7 @@ main_bp = Blueprint('main', __name__, template_folder='../../templates/main', st
 def index():
     return render_template('main/index.html')
 
-
-
-
 # proyecto flujorad web
-
 @main_bp.route('/flujorad')
 def flujorad():
     return render_template('proyectos/flujorad.html')
@@ -26,7 +22,6 @@ def flujorad():
 @login_required
 def panel_user():
     return render_template('perfil/panel.html')
-
 
 @main_bp.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
@@ -42,6 +37,7 @@ def update_profile():
         user.email = request.form['email']
         user.phone = request.form['phone']
         user.username = request.form['username']
+        user.document_id = request.form['document_id']
         
         try:
             user.save()  # Guardar cambios en la base de datos

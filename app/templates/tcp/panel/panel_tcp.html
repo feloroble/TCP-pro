@@ -4,6 +4,15 @@
 
 {% block content %}
 <section id="features" class="ud-features">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
     <div class="container mt-4">
         <div class="row">
             <div class="col-12 text-center mb-4">
@@ -36,11 +45,13 @@
                                     {{ negocio.project_name }}
                                 </option>
                                 {% endfor %}
-                            </select>
+                                </select>
                             <button type="submit" class="btn btn-light btn-sm">Seleccionar</button>
                         </form>
                         {% else %}
                         <p>No tienes negocios asociados.</p>
+                        <li><a href="{{ url_for('tcp.create_tcp_business') }}" class="btn btn-light btn-sm ">Crear un nuevo negocio</a></li>
+
                         {% endif %}
                     </div>
                 </div>
@@ -52,7 +63,6 @@
                         <h5 class="card-title">Opciones del Negocio</h5>
                         <ul class="list-unstyled">
                             <li><a href="{{ url_for('tcp.create_tcp_business') }}" class="text-primary">Actualizar Datos del Negocio</a></li>
-                            <li><a href="{{ url_for('tcp.create_tcp_business') }}" class="text-primary">Crear un nuevo negocio</a></li>
                             <li><a href="#" class="text-primary">Facturas de Ventas</a></li>
                             <li><a href="#" class="text-primary">Facturas de Compras</a></li>
                             <li><a href="{{ url_for('inventario.index') }}" class="text-primary">Inventarios</a></li>

@@ -119,10 +119,6 @@ def resend_verification_email():
     flash('Te hemos enviado un enlace de verificación a tu correo.', 'info')
     return redirect(url_for('user.login'))
     
-
-
-
-
 @user_bp.route('/confirm/<token>')
 def confirm_email(token):
     try:
@@ -155,6 +151,7 @@ def confirm_email(token):
         flash('Ocurrió un error al verificar tu correo.', 'danger')
         return redirect(url_for('user.login'))
 # inicio de seccion del usuario
+
 @user_bp.route('/login',methods = ('GET', 'POST'))
 def login():
     if request.method == 'POST':
@@ -196,7 +193,6 @@ def login():
         Operation.create(user=user, event_type='login', description='Inicio de sesión exitoso.')
         return redirect(url_for('main.panel_user'))
     return render_template('login.html')
-
 
 # Restablecer contraseña
 @user_bp.route('/reset_password',methods = ('GET', 'POST'))
@@ -259,8 +255,6 @@ def token_password(token):
             return redirect(url_for('user.login'))
     
     return render_template('update_password.html', token=token)
-
-
 
 
 @user_bp.route('/logout')
