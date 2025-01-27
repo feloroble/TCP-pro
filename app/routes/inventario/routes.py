@@ -1,7 +1,10 @@
-from flask import  app, jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+import os
+from flask import  app, current_app, jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
+from app.config import ALLOWED_EXTENSIONS
 from app.models.inventario import Category, Concept, CostSheet, Product, SubCategory, TCPBusiness
 from peewee import fn, JOIN
 from .. import login_required, user_tcp_required
+from werkzeug.utils import secure_filename
 
 
 
@@ -31,16 +34,17 @@ def index():
     products = (
         Product.select(Product, Category.name.alias('category_name'))
         .join(Category, JOIN.LEFT_OUTER)
-        .where(Product.business_id == selected_business_id)
+        .where(Product.business == selected_business_id)
     )
 
     # Obtener categorías con conteo de productos
     categories = (
         Category.select(Category, fn.COUNT(Product.id).alias('product_count'))
-        .join(Product, JOIN.LEFT_OUTER, on=(Category.id == Product.category_id))
-        .where(Category.business_id == selected_business_id)
+        .join(Product, JOIN.LEFT_OUTER, on=(Category.id == Product.category))
+        .where(Category.business == selected_business_id)
         .group_by(Category.id)
     )
+    
 
     # Obtener conceptos asociados a las fichas de costo del negocio
     def obtener_conceptos_por_negocio(business_id):
@@ -69,7 +73,7 @@ def index():
     query = (Product
              .select(Product, Category.name.alias('category_name'))
              .join(Category, JOIN.LEFT_OUTER)
-             .where(Product.business_id == selected_business_id))
+             .where(Product.business == selected_business_id))
 
     if product_name:
         query = query.where(Product.name.contains(product_name))
@@ -81,9 +85,9 @@ def index():
         query = query.where(Product.tipo == product_type)
 
     products = query
-    print(products)
+    print(f"Los productos son {products}")
 
-    if len(products) == 0:
+    if not products:
         flash("No hay productos asociados a este negocio.", "info")
 
     # Preparar datos para la plantilla
@@ -151,7 +155,7 @@ def add_product():
         # Crear el producto
         Product.create(
             name=name,
-            descrip=descrip,
+            description=descrip,
             category=subcategory.category,  # Asignar la categoría principal a través de la subcategoría
             business=business_id,
             user=g.user.id,
@@ -211,17 +215,7 @@ def add_category():
 
     return redirect(url_for('inventario.index'))
    
-@inventario_bp.route('/edit_product', methods=['POST'])
-@login_required
-@user_tcp_required
-def edit_product():
-    product_id = request.form.get('product_id')
-    product = Product.get_by_id(product_id)
-    product.name = request.form.get('name')
-    product.price = request.form.get('price')
-    product.stock = request.form.get('stock')
-    product.save()
-    return redirect(url_for('inventario.index', business_id=product.business.id))
+
 
 @inventario_bp.route('/delete_product/<int:product_id>' , methods=['POST'])
 @login_required

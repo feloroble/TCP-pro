@@ -22,6 +22,13 @@ MAIL = {
     'mail_default_sender':'tcp@tecnotactil.com'
 }
 
+
+
+UPLOAD_FOLDER = os.path.join('/static', 'uploads', 'products')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+
+
 def generate_confirmation_token(email):
     serializer = URLSafeTimedSerializer(SECRET_KEY)
     return serializer.dumps(email, salt=SECURITY_PASSWORD_SALT)

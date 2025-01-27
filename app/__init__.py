@@ -4,7 +4,7 @@ from flask import Flask, g, session
 from app.middleware import track_url_middleware
 from app.models.tcp import TCPBusiness
 from app.tasks.scheduler import initialize_scheduler
-from .config import  SECRET_KEY, MAIL
+from .config import  SECRET_KEY, MAIL, UPLOAD_FOLDER
 
 from app.extensions import mail
 
@@ -23,6 +23,7 @@ def create_app():
     app.config['MAIL_USERNAME'] = MAIL['mail_usename']
     app.config['MAIL_PASSWORD'] = MAIL['mail_password']
     app.config['MAIL_DEFAULT_SENDER'] = MAIL['mail_default_sender']
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
     # Inicializar extensiones
@@ -39,11 +40,13 @@ def create_app():
     from app.routes.tcp.routes import tcp_bp
     from app.routes.inventario.routes import inventario_bp
     from app.routes.ficha_costo.routes import ficha_bp
+    from app.routes.producto.routes import producto_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(tcp_bp, url_prefix='/tcp')
     app.register_blueprint(inventario_bp, url_prefix='/tcp/inventario')
     app.register_blueprint(ficha_bp, url_prefix='/ficha-costo')
+    app.register_blueprint(producto_bp, url_prefix='/edit-product')
     
     return app
     

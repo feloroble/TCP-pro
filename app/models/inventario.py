@@ -55,6 +55,7 @@ class Product(BaseModel):
     um = CharField(null=False)  # Unidad de medida definida en el producto
     created_by = ForeignKeyField(User, backref='products', on_delete='SET NULL', null=True)  # Usuario creador
     code = CharField(unique=True)  # Código único del producto
+    image_path = CharField(null=True) 
 
     @classmethod
     def generate_product_code(cls, business_id, user_id):
