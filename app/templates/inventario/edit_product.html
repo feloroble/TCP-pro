@@ -6,56 +6,63 @@
 <section id="features" class="ud-features">
     <div class="container">
 
+      <!-- Mostrar la imagen actual del producto -->
+      {% if product.image_path %}
+      <div class="mb-3">
+        <img src="{{ url_for('static', filename='uploads/products/' + product.image_path) }}" alt="Imagen del producto" class="img-fluid" style="max-width: 200px;">
+      </div>
+      {% endif %}
+
       <form method="post" action="{{ url_for('producto.edit_product', product_id=product.id) }}" enctype="multipart/form-data">
-    <div class="mb-3">
-      <label for="name" class="form-label">Nombre</label>
-      <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
-    </div>
-    
-    <div class="mb-3">
-      <label for="category" class="form-label">Categoría</label>
-      <select class="form-select" id="category" name="category_id" required>
-        {% for category in categories %}
-        <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
-          {{ category.name }}
-        </option>
-        {% endfor %}
-      </select>
-    </div>
-    
-    <div class="mb-3">
-      <label for="stock" class="form-label">Stock</label>
-      <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}">
-    </div>
-  
-    <div class="mb-3">
-      <label for="um" class="form-label">Unidad de medida</label>
-      <input type="text" class="form-control" id="um" name="um" value="{{ product.um }}" required>
-    </div>
-  
-    <div class="mb-3">
-      <label for="type" class="form-label">Tipo de producto</label>
-      <select class="form-select" id="type" name="type">
-        <option value="physical" {% if product.tipo == "physical" %}selected{% endif %}>Físico</option>
-        <option value="digital" {% if product.tipo == "digital" %}selected{% endif %}>Digital</option>
-        <option value="service" {% if product.tipo == "service" %}selected{% endif %}>Servicio</option>
-      </select>
-    </div>
-  
-    <!-- Campo para URL remota -->
-    <div class="mb-3">
-      <label for="image_url" class="form-label">URL de la imagen</label>
-      <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
-    </div>
-  
-    <!-- Campo para archivo local -->
-    <div class="mb-3">
-      <label for="image_file" class="form-label">Subir imagen</label>
-      <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
-    </div>
-  
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <div class="mb-3">
+          <label for="name" class="form-label">Nombre</label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="category" class="form-label">Categoría</label>
+          <select class="form-select" id="category" name="category_id" required>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
+              {{ category.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="mb-3">
+          <label for="stock" class="form-label">Stock</label>
+          <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}">
+        </div>
+      
+        <div class="mb-3">
+          <label for="um" class="form-label">Unidad de medida</label>
+          <input type="text" class="form-control" id="um" name="um" value="{{ product.um }}" required>
+        </div>
+      
+        <div class="mb-3">
+          <label for="type" class="form-label">Tipo de producto</label>
+          <select class="form-select" id="type" name="type">
+            <option value="physical" {% if product.tipo == "physical" %}selected{% endif %}>Físico</option>
+            <option value="digital" {% if product.tipo == "digital" %}selected{% endif %}>Digital</option>
+            <option value="service" {% if product.tipo == "service" %}selected{% endif %}>Servicio</option>
+          </select>
+        </div>
+      
+        <!-- Campo para URL remota -->
+        <div class="mb-3">
+          <label for="image_url" class="form-label">URL de la imagen</label>
+          <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg" value="{{ product.image_url }}">
+        </div>
+      
+        <!-- Campo para archivo local -->
+        <div class="mb-3">
+          <label for="image_file" class="form-label">Subir imagen</label>
+          <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+        </div>
+      
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </form>
-</div>
+    </div>
 </section>
-  {% endblock %}  
+{% endblock %}

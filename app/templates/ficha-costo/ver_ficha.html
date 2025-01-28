@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Costo</title>
+</head>
+<body>
+    <h1>Ficha de Costo para {{ cost_sheet.product.name }}</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <p><strong>Nivel de Producción:</strong> {{ cost_sheet.production_level }}</p>
+    <p><strong>Porcentaje de Utilización:</strong> {{ cost_sheet.utilization_percentage }}%</p>
+    <p><strong>Precio de Costo:</strong> {{ cost_sheet.precio_de_costo }}</p>
+    
+    <h2>Conceptos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Concepto</th>
+                <th>Costo Base</th>
+                <th>Nuevo Costo</th>
+                <th>Tipo de Gasto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for concept in concepts %}
+            <tr>
+                <td>{{ concept.concept }}</td>
+                <td>{{ concept.base_cost }}</td>
+                <td>{{ concept.new_cost }}</td>
+                <td>{{ concept.concept_type }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{{ url_for('inventario.index') }}">Volver al Listado de Productos</a>
+</body>
+</html>

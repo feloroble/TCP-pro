@@ -5,10 +5,7 @@
 {% block content %}
 <section id="features" class="ud-features">
     
-
-
-   
-   <div class="container">
+  <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
        {% if messages %}
        <div class="alert alert-dismissible fade show" role="alert">
@@ -129,11 +126,9 @@
                       <label for="productType" class="form-label">Tipo de producto</label>
                       <select class="form-select" id="productType" name="product_type">
                         <option value="" selected>Todos los tipos</option>
-                        {% for product_type in product_types %}
-                        <option value="{{ product_type.key }}" {% if product_type.key == product_type %}selected{% endif %}>
-                          {{ product_type.label }}
-                        </option>
-                        {% endfor %}
+                        <option value="physical" {% if product_type == 'physical' %}selected{% endif %}>Físico</option>
+                        <option value="digital" {% if product_type == 'digital' %}selected{% endif %}>Digital</option>
+                        <option value="service" {% if product_type == 'service' %}selected{% endif %}>Servicio</option>
                       </select>
                     </div>
                   
@@ -147,13 +142,14 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Foto</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
                             <th>Tipo</th>
                             <th>Precio</th>
                             <th>Stock</th>
+                            <th>Última edición</th>
                             <th>Acciones</th>
-                            <th>Opciones sobre el producto</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -161,14 +157,23 @@
                         {% for product in products %}
                         <tr>
                             <td>{{ loop.index }}</td>
+                            <td>
+                                {% if product.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/products/' + product.image_path) }}" alt="Foto del producto" class="img-fluid" style="max-height: 50px; max-width: 50px;">
+                                {% elif product.image_url %}
+                                <img src="{{ product.image_url }}" alt="Foto del producto" class="img-fluid" style="max-height: 50px; max-width: 50px;">
+                                {% else %}
+                                Sin imagen
+                                {% endif %}
+                            </td>
                             <td>{{ product.name }}</td>
                             <td>{{ product.category.name if product.category else 'Sin categoría' }}</td>
                             <td>
                                 {% if product.tipo == 'physical' %}Físico
                                 {% elif product.tipo == 'digital' %}Digital
                                 {% elif product.tipo == 'service' %}Servicio
-                                {% endif %}
-                              </td>
+                                {% else %}Sin tipo{% endif %}
+                            </td>
                             <td>${{ product.price }}</td>
                             <td>{{ product.stock }}</td>
                             <td>
@@ -181,12 +186,12 @@
                             <td>
                                 {% if product.cost_sheet %}                       
                                     <!-- Botón para editar ficha de costo -->
-                                    <a href="{{ url_for('ficha-costo.manage_cost_sheet', product_id=product.id) }}" class="btn btn-info btn-sm">
+                                    <a href="{{ url_for('ficha-costo.create_cost_sheet', product_id=product.id) }}" class="btn btn-info btn-sm">
                                            Editar Ficha de Costo
                                     </a>
                                 {% else %}
                                     <!-- Botón para crear ficha de costo -->
-                                    <a href="{{ url_for('ficha-costo.manage_cost_sheet', product_id=product.id) }}" class="btn btn-primary btn-sm">
+                                    <a href="{{ url_for('ficha-costo.create_cost_sheet', product_id=product.id) }}" class="btn btn-primary btn-sm">
                                             Crear Ficha de Costo
                                     </a>
                                 {% endif %}
@@ -194,6 +199,10 @@
                                      <a href="{{ url_for('producto.edit_product', product_id=product.id) }}" class="btn btn-warning btn-sm">
                                             Editar producto
                                       </a>
+                                      <!-- Botón para editar el producto-->
+                                     <a href="{{ url_for('ficha-costo.view_cost_sheet', product_id=product.id) }}" class="btn btn-info btn-sm">
+                                      Ver Ficha de Costo
+                                </a>
                                 <form method="POST" action="{{ url_for('inventario.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Estás seguro de eliminar este producto?');" class="d-inline">
                                     <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                 </form>
@@ -206,6 +215,7 @@
             </div>
         </div>
     </div>
+
 
 <!-- Modal Agregar Categoría -->
    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryLabel" aria-hidden="true">

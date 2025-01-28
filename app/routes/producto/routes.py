@@ -41,22 +41,21 @@ def edit_product(product_id):
             return redirect(url_for('inventario.edit_product', product_id=product.id))
         
         # Manejo de imagen
-        if 'photo' in request.files:
-           photo = request.files['photo']
-           if photo and allowed_file(photo.filename):
-               filename = secure_filename(photo.filename)
-
-            # Crear la carpeta si no existe
-               upload_folder = os.path.join(current_app.root_path, 'static/uploads/products')
-               if not os.path.exists(upload_folder):
+        image_file = request.files.get('image_file')
+        
+        if image_file and allowed_file(image_file.filename):
+            # Si hay imagen previa, eliminarla
+            if product.image_path:
+                old_image_path = os.path.join(current_app.root_path, 'static/uploads/products', product.image_path)
+                if os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+            filename = secure_filename(image_file.filename)
+            upload_folder = os.path.join(current_app.root_path, 'static/uploads/products')
+            if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder, exist_ok=True)
-
-            # Guardar la imagen
-           filepath = os.path.join(upload_folder, filename)
-           photo.save(filepath)
-
-            # Guardar el nombre del archivo en la base de datos
-           product.photo = filename
+            filepath = os.path.join(upload_folder, filename)
+            image_file.save(filepath)
+            product.image_path = filename 
         
         # Actualizar producto
         product.name = name
