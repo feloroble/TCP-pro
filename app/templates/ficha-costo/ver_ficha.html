@@ -21,11 +21,13 @@
     <p><strong>Nivel de Producción:</strong> {{ cost_sheet.production_level }}</p>
     <p><strong>Porcentaje de Utilización:</strong> {{ cost_sheet.utilization_percentage }}%</p>
     <p><strong>Precio de Costo:</strong> {{ cost_sheet.precio_de_costo }}</p>
+    <p><strong>Creado por:</strong> {{ cost_sheet.nombre_user }} ({{ cost_sheet.created_by_role }})</p>
     
     <h2>Conceptos</h2>
     <table>
         <thead>
             <tr>
+                <th>Fila</th>
                 <th>Concepto</th>
                 <th>Costo Base</th>
                 <th>Nuevo Costo</th>
@@ -35,15 +37,34 @@
         <tbody>
             {% for concept in concepts %}
             <tr>
+                <td>{{ concept.row }}</td>
                 <td>{{ concept.concept }}</td>
                 <td>{{ concept.base_cost }}</td>
                 <td>{{ concept.new_cost }}</td>
-                <td>{{ concept.concept_type }}</td>
+                <td>{{ concept.get_concept_type_display() }}</td>  <!-- Suponiendo que tienes un método para mostrar el label -->
             </tr>
             {% endfor %}
+            <tr>
+                <td>5</td>
+                <td>Suma de filas 1 a 4</td>
+                <td colspan="2">{{ sum_1_4 }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>Suma de filas 6 a 10</td>
+                <td colspan="2">{{ sum_6_10 }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>Suma de filas 1 a 10</td>
+                <td colspan="2">{{ sum_1_10 }}</td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
     
-    <a href="{{ url_for('inventario.index') }}">Volver al Listado de Productos</a>
+    <a href="{{ url_for('inventario.index') }}">Volver al Inventario</a>
 </body>
 </html>

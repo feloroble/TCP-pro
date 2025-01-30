@@ -36,14 +36,19 @@ def create_app():
     
      # Registrar Blueprints
     from app.routes.user.routes import user_bp
+    from app.routes.user.detalle_usuario import detalle_bp
     from app.routes.main.routes import main_bp
-    from app.routes.tcp.routes import tcp_bp
+    from app.routes.tcp.routes_tcp import tcp_bp
+    from app.routes.tcp.tarifas_tcp import tarifas_bp
     from app.routes.inventario.routes import inventario_bp
     from app.routes.ficha_costo.routes import ficha_bp
     from app.routes.producto.routes import producto_bp
+    
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp, url_prefix='/user')
+    app.register_blueprint(detalle_bp, url_prefix='/user/detalles')
     app.register_blueprint(tcp_bp, url_prefix='/tcp')
+    app.register_blueprint(tarifas_bp, url_prefix='/tcp/tarifas')
     app.register_blueprint(inventario_bp, url_prefix='/tcp/inventario')
     app.register_blueprint(ficha_bp, url_prefix='/ficha-costo')
     app.register_blueprint(producto_bp, url_prefix='/edit-product')

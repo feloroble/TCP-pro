@@ -1,0 +1,44 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<section id="features" class="ud-features text-center w-100  container-fluid">
+    <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+       {% if messages %}
+       <div class="alert alert-dismissible fade show" role="alert">
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+         {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    <div class="container">
+        <h1>Detalles del Usuario</h1>
+        <div class="user-details">
+            <p><strong>Nombre:</strong> {{ user['first_name'] }} {{ user['last_name'] }}</p>
+            <p><strong>Username:</strong> {{ user['username'] }}</p>
+            <p><strong>Email:</strong> {{ user['email'] }}</p>
+            <p><strong>Teléfono:</strong> {{ user['phone'] }}</p>
+            <p><strong>Rol:</strong> {{ user['rol'] }}</p>
+            <p><strong>Duración de Licencia:</strong> {{ user['license_duration'] }}</p>
+            <p><strong>Fecha de Expiración de Licencia:</strong> {{ user['license_expiry'] }}</p>
+            <p><strong>Días Restantes:</strong> {{ user['days_remaining'] or 'No disponible' }}</p>
+            <p><strong>Número de Negocios:</strong> {{ user['business_count'] }}</p>
+            <p><strong>Monto a Pagar:</strong> {{ user['amount_message'] }}</p>
+        </div>
+     <form method="POST">
+      {% for business in businesses %}
+        <div class="business-tariff">
+            <h3>{{ business.project_name }}</h3>
+            <label for="price_{{ business.id }}">Precio Mensual:</label>
+            <input type="number" name="price_{{ business.id }}" id="price_{{ business.id }}" step="0.01" required>
+        </div>
+      {% endfor %}
+         <button type="submit">Guardar Tarifas</button>
+     </form>
+
+<a href="{{ url_for('user.admin_panel') }}">Volver al Panel de Administración</a>
+
+</section>
+    {% endblock %}

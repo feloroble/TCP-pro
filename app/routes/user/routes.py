@@ -163,9 +163,9 @@ def login():
             (User.username == username_or_email) | 
             (User.email == username_or_email) 
         ).first()
-        print(user.verified)
+    #    print(user.verified)
 
-        if not user.verified:
+        if not User.verified:
                 flash('Tu cuenta no ha sido verificada. Por favor, revisa tu correo.', 'warning')
                 return redirect(url_for('user.login'))
          # Buscar usuario por nombre de usuario o correo
@@ -339,7 +339,6 @@ def get_latest_operations():
 @user_bp.route('/admin', methods=['GET', 'POST'])
 @login_required
 @admin_required
-
 def admin_panel():
     if request.method == 'POST':
         user_id = request.form.get('user_id')

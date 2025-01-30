@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Nueva Tarifa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Crear Nueva Tarifa</h1>
+    <form method="POST">
+        <div>
+            <label for="name">Nombre de la Tarifa:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div>
+            <label for="price">Precio Mensual:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+        </div>
+        <button type="submit">Crear Tarifa</button>
+    </form>
+    <a href="{{ url_for('user.admin_panel') }}">Volver al Panel de Administración</a>
+</body>
+</html>

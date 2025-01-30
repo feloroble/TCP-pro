@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from peewee import *
 from app.database import BaseModel
 from app.models.user import User
@@ -41,4 +41,11 @@ class TCPBusiness(BaseModel):
     class Meta:
         table_name = 'tcpbusiness'
         
-              
+class ServiceTariff(BaseModel):
+    business = ForeignKeyField(TCPBusiness, backref='tariffs')
+    price = DecimalField(max_digits=10, decimal_places=2)
+    start_date = DateField(default=date.today)
+    end_date = DateField(null=True)  # Null si no hay fin definido o es indefinido
+
+    class Meta:
+        table_name = 'servicetariff'          

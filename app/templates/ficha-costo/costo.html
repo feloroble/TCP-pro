@@ -5,79 +5,92 @@
 {% block content %}
 <section id="features" class="ud-features">
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="alert alert-dismissible fade show" role="alert">
-          {% for category, message in messages %}
-             <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
-          {% endfor %}
-       </div>
-   {% endif %}
-   {% endwith %}
+        {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-   <div class="container mt-4">
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Crear Ficha de Costo</title>
-    </head>
-    <body>
-        <h1>Crear Ficha de Costo para {{ product.name }}</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    
+    <div class="container mt-4">
+        <h1>{{ 'Editar' if cost_sheet else 'Crear' }} Ficha de Costo para {{ product.name }}</h1>
+        
         <form method="POST" action="{{ url_for('ficha-costo.create_cost_sheet', product_id=product.id) }}">
             <label for="production_level">Nivel de Producción:</label>
-            <input type="number" name="production_level" required><br>
+            <input type="number" name="production_level" value="{{ cost_sheet.production_level if cost_sheet else '' }}" required><br>
     
             <label for="utilization_percentage">Porcentaje de Utilización:</label>
-            <input type="number" step="0.01" name="utilization_percentage" required><br>
+            <input type="number" step="0.01" name="utilization_percentage" value="{{ cost_sheet.utilization_percentage if cost_sheet else '' }}" required><br>
     
             <label for="precio_de_costo">Precio de Costo:</label>
-            <input type="number" step="0.01" name="precio_de_costo" required><br>
+            <input type="number" step="0.01" name="precio_de_costo" value="{{ cost_sheet.precio_de_costo if cost_sheet else '' }}" required><br>
     
             <h2>Conceptos de Costo</h2>
             <div id="concepts">
-                <div>
-                    <input type="text" name="concept[]" placeholder="Nombre del concepto" required>
-                    <input type="number" step="0.01" name="base_cost[]" placeholder="Costo Base" required>
-                    <input type="number" step="0.01" name="new_cost[]" placeholder="Nuevo Costo" required>
-                    <select name="concept_type[]" required>
-                        <option value="direct">Gastos Directos</option>
-                        <option value="indirect">Gastos Indirectos</option>
-                    </select>
-                </div>
+                {% if concepts %}  <!-- Si hay conceptos existentes, los mostramos -->
+                    {% for concept in concepts %}
+                        <div>
+                            <input type="hidden" name="concept_id[]" value="{{ concept.id }}">
+                            <input type="text" name="concept[]" value="{{ concept.concept }}" required>
+                            <input type="number" step="0.01" name="base_cost[]" value="{{ concept.base_cost }}" required>
+                            <input type="number" step="0.01" name="new_cost[]" value="{{ concept.new_cost }}" required>
+                            <select name="concept_type[]">
+                                {% for type, label in concept_types %}
+                                    <option value="{{ type }}" {% if type == concept.concept_type %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" onclick="removeConcept(this)">Eliminar</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Si no hay conceptos, añadimos uno por defecto -->
+                    <div>
+                        <input type="text" name="concept[]" placeholder="Nombre del concepto" required>
+                        <input type="number" step="0.01" name="base_cost[]" placeholder="Costo Base" required>
+                        <input type="number" step="0.01" name="new_cost[]" placeholder="Nuevo Costo" required>
+                        <select name="concept_type[]">
+                            {% for type, label in concept_types %}
+                                <option value="{{ type }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
             </div>
             <button type="button" onclick="addConcept()">Añadir Concepto</button><br>
     
-            <button type="submit">Crear Ficha de Costo</button>
+            <button type="submit">{{ 'Guardar Cambios' if cost_sheet else 'Crear Ficha de Costo' }}</button>
         </form>
-    
-        <script>
-            function addConcept() {
-                var container = document.getElementById('concepts');
-                var div = document.createElement('div');
-                div.innerHTML = `
-                    <input type="text" name="concept[]" placeholder="Nombre del concepto" required>
-                    <input type="number" step="0.01" name="base_cost[]" placeholder="Costo Base" required>
-                    <input type="number" step="0.01" name="new_cost[]" placeholder="Nuevo Costo" required>
-                    <select name="concept_type[]" required>
-                        <option value="direct">Gastos Directos</option>
-                        <option value="indirect">Gastos Indirectos</option>
-                    </select>
-                `;
-                container.appendChild(div);
-            }
-        </script>
-    </body>
-    </html>
+    </div>
 </section>
+
+
+
+<script>
+    function addConcept() {
+        var container = document.getElementById('concepts');
+        var div = document.createElement('div');
+        var selectHTML = `
+            <select name="concept_type[]">
+                {% for type, label in concept_types %}
+                    <option value="{{ type }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        `;
+        div.innerHTML = `
+            <input type="text" name="concept[]" placeholder="Nombre del concepto" required>
+            <input type="number" step="0.01" name="base_cost[]" placeholder="Costo Base" required>
+            <input type="number" step="0.01" name="new_cost[]" placeholder="Nuevo Costo" required>
+            ${selectHTML}
+        `;
+        container.appendChild(div);
+    }
+
+    function removeConcept(button) {
+        var conceptDiv = button.parentElement;
+        conceptDiv.querySelector('input[name="concept_id[]"]').name = 'delete_concept[]';  // Marcar para eliminación
+        conceptDiv.style.display = 'none';  // Ocultar en lugar de eliminar inmediatamente
+    }
+</script>
 {% endblock %}

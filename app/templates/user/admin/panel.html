@@ -74,7 +74,7 @@
                     <td>{{ user.id }}</td>
                     <td>{{ user.first_name }}</td>
                     <td>{{ user.last_name }}</td>
-                    <td>{{ user.username }}</td>
+                    <td><a href="{{ url_for('detalles.user_details', user_id=user.id) }}">{{ user.username }}</a> </td>
                     <td>{{ user.business_count }}</td> 
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone }}</td>
@@ -120,6 +120,13 @@
             </tbody>
         </table>
       </div>
+
+
+      
+   <div class="mt-4">
+    <h3>Tarifas</h3>
+    <a href="{{ url_for('tarifas.new_tariff') }}" class="btn btn-primary">Crear Nueva Tarifa</a>
+ </div>
   </div>
 </section>
 <script>
