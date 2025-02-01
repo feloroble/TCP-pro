@@ -1,70 +1,59 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de Costo</title>
-</head>
-<body>
-    <h1>Ficha de Costo para {{ cost_sheet.product.name }}</h1>
-    
+{% extends 'base.html' %}
+
+{% block titulo %} Ficha de Costo de {{ cost_sheet.product.name }} {% endblock %}
+
+{% block content %}
+<section id="features" class="ud-features">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul class="flashes">
+            <div class="alert alert-dismissible fade show" role="alert">
                 {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
+                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
     {% endwith %}
 
-    <p><strong>Nivel de Producción:</strong> {{ cost_sheet.production_level }}</p>
-    <p><strong>Porcentaje de Utilización:</strong> {{ cost_sheet.utilization_percentage }}%</p>
-    <p><strong>Precio de Costo:</strong> {{ cost_sheet.precio_de_costo }}</p>
-    <p><strong>Creado por:</strong> {{ cost_sheet.nombre_user }} ({{ cost_sheet.created_by_role }})</p>
-    
-    <h2>Conceptos</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Fila</th>
-                <th>Concepto</th>
-                <th>Costo Base</th>
-                <th>Nuevo Costo</th>
-                <th>Tipo de Gasto</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for concept in concepts %}
-            <tr>
-                <td>{{ concept.row }}</td>
-                <td>{{ concept.concept }}</td>
-                <td>{{ concept.base_cost }}</td>
-                <td>{{ concept.new_cost }}</td>
-                <td>{{ concept.get_concept_type_display() }}</td>  <!-- Suponiendo que tienes un método para mostrar el label -->
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>5</td>
-                <td>Suma de filas 1 a 4</td>
-                <td colspan="2">{{ sum_1_4 }}</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>11</td>
-                <td>Suma de filas 6 a 10</td>
-                <td colspan="2">{{ sum_6_10 }}</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>12</td>
-                <td>Suma de filas 1 a 10</td>
-                <td colspan="2">{{ sum_1_10 }}</td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <a href="{{ url_for('inventario.index') }}">Volver al Inventario</a>
-</body>
-</html>
+    <div class="container mt-4">
+        <h1>Ficha de Costo para {{ cost_sheet.product.name }}</h1>
+        <p><strong>Nivel de Producción:</strong> {{ cost_sheet.production_level }}</p>
+        <p><strong>Porcentaje de Utilización:</strong> {{ cost_sheet.utilization_percentage }}%</p>
+        <p><strong>Precio de Costo:</strong> {{ cost_sheet.precio_de_costo }}</p>
+        <p><strong>Creado por:</strong> {{ cost_sheet.nombre_user }} ({{ cost_sheet.created_by_role }})</p>
+        <p><strong>Fecha de Creación:</strong> {{ cost_sheet.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <p><strong>Última Actualización:</strong> {{ cost_sheet.updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+        <h2>Conceptos de Costo</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Fila</th>
+                    <th>Costo Base</th>
+                    <th>Nuevo Costo</th>
+                    <th>Tipo de Concepto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for concept in concepts %}
+                    <tr>
+                        <td>{{ concept.concept }}</td>
+                        <td>{{ concept.row }}</td>
+                        <td>{{ concept.base_cost }}</td>
+                        <td>{{ concept.new_cost }}</td>
+                        <td>{{ concept.get_concept_type_display() }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Totales</h3>
+        <p><strong>Suma de Conceptos 1 a 4:</strong> {{ sum_1_4 }}</p>
+        <p><strong>Suma de Conceptos 6 a 10:</strong> {{ sum_6_10 }}</p>
+        <p><strong>Suma Total de Conceptos 1 a 10:</strong> {{ sum_1_10 }}</p>
+
+        <a href="{{ url_for('ficha-costo.create_cost_sheet', product_id=cost_sheet.product.id) }}" class="btn btn-primary">Editar Ficha de Costo</a>
+        <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary">Volver a Productos</a>
+    </div>
+</section>
+{% endblock %}

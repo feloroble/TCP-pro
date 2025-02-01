@@ -41,7 +41,7 @@ def create_app():
     from app.routes.tcp.routes_tcp import tcp_bp
     from app.routes.tcp.tarifas_tcp import tarifas_bp
     from app.routes.inventario.routes import inventario_bp
-    from app.routes.ficha_costo.routes import ficha_bp
+    from app.routes.ficha_costo.routes import ficha_bp, ver_ficha_dp
     from app.routes.producto.routes import producto_bp
     
     app.register_blueprint(main_bp)
@@ -51,6 +51,7 @@ def create_app():
     app.register_blueprint(tarifas_bp, url_prefix='/tcp/tarifas')
     app.register_blueprint(inventario_bp, url_prefix='/tcp/inventario')
     app.register_blueprint(ficha_bp, url_prefix='/ficha-costo')
+    app.register_blueprint(ver_ficha_dp, url_prefix='/ficha-costo/ver')
     app.register_blueprint(producto_bp, url_prefix='/edit-product')
     
     return app
