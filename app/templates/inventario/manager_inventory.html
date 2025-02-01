@@ -201,7 +201,7 @@
                                       </a>
                                       <!-- Botón para editar el producto-->
                                      <a href="{{ url_for('ver-ficha.view_cost_sheet', product_id=product.id) }}" class="btn btn-info btn-sm">
-                                      Ver Ficha de Costo
+                                      Vista del Producto
                                 </a>
                                 <form method="POST" action="{{ url_for('inventario.delete_product', product_id=product.id) }}" onsubmit="return confirm('¿Estás seguro de eliminar este producto?');" class="d-inline">
                                     <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>

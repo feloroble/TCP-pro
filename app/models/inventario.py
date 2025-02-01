@@ -96,127 +96,44 @@ class CostSheet(BaseModel):
         )
 
 
+class ConceptType(BaseModel):
+    name = CharField(max_length=255, unique=True)  # Nombre del tipo de concepto
+    description = TextField(null=True)  # Descripción opcional
+    row_prefix = CharField(max_length=10, null=True)  # Prefijo para generar filas (opcional)
+    created_at = DateTimeField(default=datetime.now)  # Fecha de creación
+    
+    def __str__(self):
+        return self.name
+
 class Concept(BaseModel):
-    FORM_TYPES = (
-        ('material', 'Gastos materiales'),  # Fila 1
-        ('salary', 'Salario directo'),      # Fila 2
-        ('direct', 'Gastos directos'),      # Fila 3
-        ('production', 'Gastos asociados a la producción'),  # Fila 4
-        ('sum_1_4', 'Suma de filas 1 a 4'),  # Fila 5
-        ('admin', 'Gastos generales de administración'),  # Fila 6
-        ('sales', 'Gastos de distribución de ventas'),  # Fila 7
-        ('financial', 'Gastos financieros'),  # Fila 8
-        ('osde', 'Gastos por financiamiento de la OSDE'),  # Fila 9
-        ('taxes', 'Gastos por conceptos de impuestos'),  # Fila 10
-        ('sum_6_10', 'Suma de filas 6 a 10'),  # Fila 11
-        ('sum_1_10', 'Suma de filas 1 a 10'),  # Fila 12
-        ('utility', 'Utilidad'),  # Fila 13
-        ('price', 'Precio o tarifa'),  # Fila 14
-        ('adjusted_price', 'Precio o tarifa ajustada'),  # Fila 15
-        ('reference_price', 'Precio de referencia'),  # Fila 16
-        ('other', 'Otros gastos'),  # Fila 17
-    )
-    
-    
     cost_sheet = ForeignKeyField(CostSheet, backref='concepts', on_delete='CASCADE')  # Relación con ficha de costo
     concept = CharField()  # Nombre del concepto
     row = CharField() # Número de fila
     base_cost = FloatField()  # Costo base
     new_cost = FloatField()  # Costo nuevo
-    concept_type = CharField(choices=FORM_TYPES)  # Tipo de concepto
+    concept_type = ForeignKeyField(ConceptType, backref='concepts', on_delete='SET NULL', null=True)  # Tipo de concepto
     created_at = DateTimeField(default=datetime.now)  # Fecha de creación
     
     
-    # Método para obtener el label del tipo de concepto
-    def get_concept_type_display(self):
-           for code, label in self.FORM_TYPES:
-              if code == self.concept_type:
-                return label
-           return self.concept_type  # fallback en caso de que no se encuentre el tipo
-    
     @classmethod
-    def generate_row_number(cls, cost_sheet_id, concept_type):
+    def generate_row(cls, concept_type):
         """
-        Genera un número de fila único para un concepto dentro de una ficha de costo.
-        - Los tipos de concepto tienen un número de fila base.
-        - Las subfilas se generan automáticamente para tipos que lo permiten.
+        Genera una fila única basada en el tipo de concepto.
         """
-        # Mapeo de tipos de concepto a números de fila base
-        type_to_base_row = {
-            'material': 1,
-            'salary': 2,
-            'direct': 3,
-            'production': 4,
-            'sum_1_4': 5,
-            'admin': 6,
-            'sales': 7,
-            'financial': 8,
-            'osde': 9,
-            'taxes': 10,
-            'sum_6_10': 11,
-            'sum_1_10': 12,
-            'utility': 13,
-            'price': 14,
-            'adjusted_price': 15,
-            'reference_price': 16,
-            'other': 17,
-        }
+        if not concept_type.row_prefix:
+            raise ValueError("El tipo de concepto debe tener un prefijo de fila definido.")
 
-        # Obtener el número de fila base
-        base_row = type_to_base_row.get(concept_type)
-        if base_row is None:
-            raise ValueError(f"Tipo de concepto no válido: {concept_type}")
-        
-        
-
-        # Si el tipo de concepto no permite subfilas, devolver el número base
-        if concept_type in ['salary', 'sum_1_4', 'sum_6_10', 'sum_1_10', 'utility', 'price', 'adjusted_price', 'reference_price']:
-            return str(base_row)
-
-        # Si permite subfilas, generar el siguiente número disponible
-        last_row = (
-            cls.select()
-            .where(
-                (cls.cost_sheet == cost_sheet_id) &
-                (cls.concept_type == concept_type)
-            )
-            .order_by(cls.row.desc())
-            .first()
-        )
-
-        if last_row:
-            # Extraer el último número y aumentar en 0.1
-            last_number = float(last_row.row)
-            new_number = last_number + 0.1
-        else:
-            # Si no hay conceptos de este tipo, empezar con el primer número
-            new_number = float(f"{base_row}.1")
-
-        return f"{new_number:.1f}"  # Formatear a un decimal (ejemplo: "1.1")
+        # Contar cuántos conceptos existen con este tipo
+        count = cls.select().where(cls.concept_type == concept_type).count()
+        return f"{concept_type.row_prefix}{count + 1}"
 
     def save(self, *args, **kwargs):
-        """Sobreescribe el método save para generar automáticamente el número de fila."""
+        """
+        Sobrescribe el método save para generar automáticamente la fila.
+        """
         if not self.row:
-            self.row = self.generate_row_number(self.cost_sheet_id, self.concept_type)
+            if not self.concept_type:
+                raise ValueError("El concepto debe tener un tipo de concepto asignado.")
+            self.row = self.generate_row(self.concept_type)
         super().save(*args, **kwargs)
-
-    @classmethod
-    def calculate_sum(cls, cost_sheet_id, start_row, end_row):
-        """
-        Calcula la suma de los costos de los conceptos dentro de un rango de filas.
-        """
-        total = (
-            cls.select(fn.SUM(cls.new_cost))
-            .where(
-                (cls.cost_sheet == cost_sheet_id) &
-                (cls.row >= str(start_row)) &
-                (cls.row <= str(end_row))
-            )
-            .scalar()
-        )
-        return total or 0.0
-
-    class Meta:
-        indexes = (
-            (('cost_sheet', 'row'), True),  # Asegura que el número de fila sea único dentro de una ficha de costo
-        )
+        

@@ -8,13 +8,13 @@
 
 <section id="features" class="ud-features">
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alert alert-dismissible fade show" role="alert">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+       {% if messages %}
+       <div class="alert alert-dismissible fade show" role="alert">
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+         {% endfor %}
+      </div>
+      {% endif %}
     {% endwith %}
     <div class="container mt-4">
         <h1 class="mb-4">{{ 'Editar' if cost_sheet else 'Crear' }} Ficha de Costo para {{ product.name }}</h1>
@@ -36,13 +36,17 @@
                 <input type="number" step="0.01" name="precio_de_costo" value="{{ cost_sheet.precio_de_costo if cost_sheet else '' }}" class="form-control" required>
             </div>
 
+            <div class="mb-3">
+                <label for="total_concepts_cost" class="form-label">Costo Total de Conceptos:</label>
+                <input type="text" id="total_concepts_cost" class="form-control" value="${{ '%.2f'|format(total_concepts_cost) }}" readonly>
+            </div>
+
             <h2 class="mb-3">Conceptos de Costo</h2>
             <div id="concepts">
                 {% if concepts %}
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Seleccionar</th>
                                 <th>Fila</th>
                                 <th>Nombre</th>
                                 <th>Costo Base</th>
@@ -54,56 +58,18 @@
                         <tbody>
                             {% for concept in concepts %}
                                 <tr>
-                                    <td><input type="checkbox" name="delete_concept[]" value="{{ concept.id }}"></td>
-                                    <td>{{ concept.row }}</td> <!-- Mostrar fila como texto -->
+                                    <td>{{ concept.row }}</td>
                                     <td>{{ concept.concept }}</td>
-                                    <td>{{ concept.base_cost }}</td>
-                                    <td>{{ concept.new_cost }}</td>
-                                    <td>
-                                        <!-- Mostrar etiqueta de tipo con color -->
-                                        {% if concept.concept_type == 'material' %}
-                                            <span class="badge bg-success"><i class="fas fa-dollar-sign"></i> Gastos materiales</span>
-                                        {% elif concept.concept_type == 'salary' %}
-                                            <span class="badge bg-primary"><i class="fas fa-chart-line"></i> Salario directo</span>
-                                        {% elif concept.concept_type == 'direct' %}
-                                            <span class="badge bg-warning text-dark"><i class="fas fa-box"></i> Gastos directos</span>
-                                        {% elif concept.concept_type == 'production' %}
-                                            <span class="badge bg-info text-dark"><i class="fas fa-industry"></i> Gastos asociados a la producción</span>
-                                        {% elif concept.concept_type == 'sum_1_4' %}
-                                            <span class="badge bg-secondary"><i class="fas fa-plus"></i> Suma de filas 1 a 4</span>
-                                        {% elif concept.concept_type == 'admin' %}
-                                            <span class="badge bg-danger"><i class="fas fa-building"></i> Gastos generales de administración</span>
-                                        {% elif concept.concept_type == 'sales' %}
-                                            <span class="badge bg-dark"><i class="fas fa-truck"></i> Gastos de distribución de ventas</span>
-                                        {% elif concept.concept_type == 'financial' %}
-                                            <span class="badge bg-light text-dark"><i class="fas fa-money-bill"></i> Gastos financieros</span>
-                                        {% elif concept.concept_type == 'osde' %}
-                                            <span class="badge bg-purple"><i class="fas fa-hand-holding-usd"></i> Gastos por financiamiento de la OSDE</span>
-                                        {% elif concept.concept_type == 'taxes' %}
-                                            <span class="badge bg-orange"><i class="fas fa-percentage"></i> Gastos por conceptos de impuestos</span>
-                                        {% elif concept.concept_type == 'sum_6_10' %}
-                                            <span class="badge bg-gray"><i class="fas fa-plus"></i> Suma de filas 6 a 10</span>
-                                        {% elif concept.concept_type == 'sum_1_10' %}
-                                            <span class="badge bg-teal"><i class="fas fa-plus"></i> Suma de filas 1 a 10</span>
-                                        {% elif concept.concept_type == 'utility' %}
-                                            <span class="badge bg-pink"><i class="fas fa-chart-bar"></i> Utilidad</span>
-                                        {% elif concept.concept_type == 'price' %}
-                                            <span class="badge bg-brown"><i class="fas fa-tag"></i> Precio o tarifa</span>
-                                        {% elif concept.concept_type == 'adjusted_price' %}
-                                            <span class="badge bg-yellow"><i class="fas fa-tags"></i> Precio o tarifa ajustada</span>
-                                        {% elif concept.concept_type == 'reference_price' %}
-                                            <span class="badge bg-green"><i class="fas fa-dollar-sign"></i> Precio de referencia</span>
-                                        {% elif concept.concept_type == 'other' %}
-                                            <span class="badge bg-black"><i class="fas fa-question-circle"></i> Otros gastos</span>
-                                        {% endif %}
-                                    </td>
+                                    <td>${{ "%.2f"|format(concept.base_cost) }}</td>
+                                    <td>${{ "%.2f"|format(concept.new_cost) }}</td>
+                                    <td>{{ concept.concept_type.name }}</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-warning" onclick="editConcept(
                                             '{{ concept.id }}',
                                             '{{ concept.concept }}',
                                             '{{ concept.base_cost }}',
                                             '{{ concept.new_cost }}',
-                                            '{{ concept.concept_type }}'
+                                            '{{ concept.concept_type.id }}'
                                         )">Editar</button>
                                     </td>
                                 </tr>
@@ -119,8 +85,16 @@
             <button type="button" class="btn btn-primary" onclick="openModal()">Agregar Concepto</button>
             <button type="submit" name="action" value="save" class="btn btn-success">Guardar Cambios</button>
             <button type="submit" name="action" value="delete" class="btn btn-danger">Eliminar Seleccionados</button>
-            <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary">Volver a Productos</a>
+            <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#conceptTypeModal">
+                <i class="fas fa-plus"></i> Crear/Editar Tipos de Conceptos
+            </button>
+            <a href="{{ url_for('inventario.index') }}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Volver al Panel de Inventario
+            </a>
         </form>
+
+        <!-- Botón para abrir modal de tipos de conceptos -->
+        
 
         <!-- Ventana modal para agregar/editar un concepto -->
         <div class="modal fade" id="conceptModal" tabindex="-1" aria-labelledby="conceptModalLabel" aria-hidden="true">
@@ -134,8 +108,6 @@
                         <form method="POST" action="{{ url_for('ficha-costo.create_cost_sheet', product_id=product.id) }}">
                             <input type="hidden" id="concept-id" name="concept_id" value="">
                             <input type="hidden" name="action" value="add_concept">
-
-                            <!-- No incluimos un campo para "Fila" porque es generado automáticamente -->
 
                             <div class="mb-3">
                                 <label for="concept-name" class="form-label">Nombre del Concepto:</label>
@@ -155,8 +127,8 @@
                             <div class="mb-3">
                                 <label for="concept-type" class="form-label">Tipo de Concepto:</label>
                                 <select id="concept-type" name="concept_type" class="form-select" required>
-                                    {% for type, label in concept_types %}
-                                        <option value="{{ type }}">{{ label }}</option>
+                                    {% for type in concept_types %}
+                                        <option value="{{ type.id }}">{{ type.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -166,6 +138,66 @@
                                 <button type="submit" class="btn btn-primary">Guardar</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ventana modal para crear/editar tipos de conceptos -->
+        <div class="modal fade" id="conceptTypeModal" tabindex="-1" aria-labelledby="conceptTypeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="conceptTypeModalLabel">Tipos de Conceptos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Crear Nuevo Tipo de Concepto</h6>
+                        <form id="create-concept-type-form" method="POST" action="{{ url_for('ficha-costo.create_concept_type') }}">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <div class="mb-3">
+                                <label for="type-name" class="form-label">Nombre:</label>
+                                <input type="text" id="type-name" name="name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="type-description" class="form-label">Descripción:</label>
+                                <textarea id="type-description" name="description" class="form-control"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="type-row-prefix" class="form-label">Prefijo de Fila:</label>
+                                <input type="text" id="type-row-prefix" name="row_prefix" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Tipo</button>
+                        </form>
+
+                        <hr>
+
+                        <h6>Tipos de Conceptos Existentes</h6>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Prefijo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in concept_types %}
+                                    <tr>
+                                        <td>{{ type.name }}</td>
+                                        <td>{{ type.row_prefix }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-warning" onclick="editConceptType(
+                                                '{{ type.id }}',
+                                                '{{ type.name }}',
+                                                '{{ type.description }}',
+                                                '{{ type.row_prefix }}'
+                                            )">Editar</button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -189,14 +221,26 @@
     }
 
     // Función para abrir la ventana modal en modo "Editar"
-    function editConcept(id, name, baseCost, newCost, type) {
+    function editConcept(id, name, baseCost, newCost, typeId) {
         document.getElementById('conceptModalLabel').innerText = 'Editar Concepto';
         document.getElementById('concept-id').value = id;
         document.getElementById('concept-name').value = name;
         document.getElementById('concept-base-cost').value = baseCost;
         document.getElementById('concept-new-cost').value = newCost;
-        document.getElementById('concept-type').value = type;
+        document.getElementById('concept-type').value = typeId;
         var modal = new bootstrap.Modal(document.getElementById('conceptModal'));
+        modal.show();
+    }
+
+    // Función para abrir la ventana modal en modo "Editar Tipo de Concepto"
+    function editConceptType(id, name, description, rowPrefix) {
+        document.getElementById('conceptTypeModalLabel').innerText = 'Editar Tipo de Concepto';
+        const form = document.getElementById('create-concept-type-form');
+        form.action = `/concept/type/edit/${id}`;
+        document.getElementById('type-name').value = name;
+        document.getElementById('type-description').value = description;
+        document.getElementById('type-row-prefix').value = rowPrefix;
+        var modal = new bootstrap.Modal(document.getElementById('conceptTypeModal'));
         modal.show();
     }
 </script>
