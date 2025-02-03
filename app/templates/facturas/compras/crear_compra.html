@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="features" class="ud-features">
+<div class="container mt-5">
+               {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-3">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                  {% endif %}
+                {% endwith %}
+    <div class="card">
+        <div class="card-header text-center">
+            <h3><i class="fas fa-shopping-cart"></i> Crear Factura de Compra</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-truck icon"></i> Proveedor:</label>
+                    <select class="form-select" name="proveedor_id">
+                        {% for proveedor in proveedores %}
+                        <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <label class="form-label"><i class="fas fa-boxes icon"></i> Productos:</label>
+                <div id="productos-container">
+                    <div class="input-group mb-3 producto">
+                        <select class="form-select" name="productos[]">
+                            {% for producto in productos %}
+                            <option value="{{ producto.id }}">{{ producto.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="cantidades[]" class="form-control" placeholder="Cantidad" required>
+                        <input type="number" name="precios_compra[]" step="0.01" class="form-control" placeholder="Precio Compra" required>
+                        <button class="btn btn-danger" type="button" onclick="eliminarProducto(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary mb-3" onclick="agregarProducto()">
+                    <i class="fas fa-plus"></i> Añadir producto
+                </button>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-save"></i> Guardar Factura
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</section>
+<script>
+    function agregarProducto() {
+        var container = document.getElementById("productos-container");
+        var div = document.createElement("div");
+        div.classList.add("input-group", "mb-3", "producto");
+        div.innerHTML = container.children[0].innerHTML;
+        container.appendChild(div);
+    }
+
+    function eliminarProducto(btn) {
+        btn.parentElement.remove();
+    }
+</script>
+{% endblock %}

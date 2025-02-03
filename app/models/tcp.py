@@ -30,6 +30,9 @@ class TCPBusiness(BaseModel):
     operation_hours = CharField(max_length=255, verbose_name="Horario de funcionamiento de la instalación")
     nic = CharField(max_length=50, verbose_name="NIC")
     business_address = TextField(verbose_name="Dirección del negocio")
+    
+    contact_phone = CharField(max_length=15, null=True, verbose_name="Teléfono de contacto")
+    contact_email = CharField(max_length=100, null=True, verbose_name="Correo de contacto")
 
     # Relación con usuario
     user_id = ForeignKeyField(User, backref="tcp_businesses", on_delete="CASCADE")
@@ -40,6 +43,19 @@ class TCPBusiness(BaseModel):
 
     class Meta:
         table_name = 'tcpbusiness'
+        
+class BusinessRelation(BaseModel):
+    business = ForeignKeyField(TCPBusiness, backref="relations", on_delete="CASCADE")  # Negocio actual
+    related_business = ForeignKeyField(TCPBusiness, null=True, backref="related_as", on_delete="SET NULL")  # Cliente/proveedor si ya existe en la BD
+    name = CharField(max_length=255, null=True)  # Para clientes/proveedores nuevos no registrados en TCPBusiness
+    phone = CharField(max_length=15, null=True)
+    email = CharField(max_length=100, null=True)
+    address = TextField(null=True)
+    type = CharField(choices=["Cliente", "Proveedor"], max_length=10)  # Define si es cliente o proveedor
+    created_at = DateTimeField(default=datetime.now)
+
+    class Meta:
+        table_name = "business_relation"
         
 class ServiceTariff(BaseModel):
     business = ForeignKeyField(TCPBusiness, backref='tariffs')

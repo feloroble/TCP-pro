@@ -116,15 +116,6 @@ def create_cost_sheet(product_id):
                            concept_types=concept_types)
     
 
-    # Renderizar formulario (GET)
-    if existing_cost_sheet:
-        concepts = Concept.select().where(Concept.cost_sheet == existing_cost_sheet.id)
-        return render_template('costo.html', product=product, 
-                               cost_sheet=existing_cost_sheet, concepts=concepts, 
-                               concept_types=Concept.FORM_TYPES)
-    else:
-        return render_template('costo.html', product=product, concept_types=Concept.FORM_TYPES)
-    
 @ver_ficha_dp.route('/<int:product_id>', methods=['GET'])
 @login_required
 @login_required

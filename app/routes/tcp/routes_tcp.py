@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import jsonify, render_template, request, url_for, redirect, flash, session, g, request,session,Blueprint
 from app.email_service import send_email
-from app.models.tcp import TCPBusiness
+from app.models.tcp import BusinessRelation, TCPBusiness
 from app.models.user import Operation, User
 
 from .. import login_required, user_tcp_required
@@ -9,7 +9,9 @@ from .. import login_required, user_tcp_required
 
 
 tcp_bp = Blueprint('tcp', __name__, template_folder='../../templates/tcp', static_folder='../../static')
-
+relation_bp =  Blueprint('tcp-relacion', __name__, template_folder='../../templates/tcp', static_folder='../../static')
+agreg_cl_prb_bp = Blueprint('agregar-clientes-prob', __name__, template_folder='../../templates/tcp', static_folder='../../static')
+edit_cl_prb_bp = Blueprint('editar-clientes-prob', __name__, template_folder='../../templates/tcp', static_folder='../../static')
 # ruta principal de inicio
 
 @tcp_bp.route('/panel-TCP',methods = ('GET', 'POST'))
@@ -101,9 +103,6 @@ def load_user_negocios():
     if g.user:
         g.negocios = TCPBusiness.select().where(TCPBusiness.user_id == g.user.id)
 
-
-
-
 @tcp_bp.route('/create', methods=['GET', 'POST'])
 @user_tcp_required
 @login_required
@@ -126,6 +125,8 @@ def create_tcp_business():
         operation_hours = request.form.get('operation_hours')
         nic = request.form.get('nic')
         business_address = request.form.get('business_address')
+        telefono = request.form.get('main_phone')
+        correo = request.form.get('main_email')
 
         # Crear una nueva entrada de TCPBusiness asociada al usuario autenticado
         tcp_business = TCPBusiness(
@@ -145,6 +146,8 @@ def create_tcp_business():
             operation_hours=operation_hours,
             nic=nic,
             business_address=business_address,
+            telefono=telefono,
+            correo=correo,
             user_id=g.user  # Asociación con el usuario autenticado
         )
 
@@ -184,3 +187,76 @@ def select_business():
     except TCPBusiness.DoesNotExist:
         return jsonify({"success": False, "message": "Negocio no encontrado o no autorizado"}), 404
 
+@agreg_cl_prb_bp.route("/<int:business_id>", methods=["GET", "POST"])
+def add_relation(business_id):
+    business = TCPBusiness.get_or_none(TCPBusiness.id == business_id)
+    if not business:
+        flash("Negocio no encontrado", "danger")
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        relation_type = request.form.get("type")
+        existing_business_id = request.form.get("existing_business")
+        name = request.form.get("name")
+        phone = request.form.get("phone")
+        email = request.form.get("email")
+        address = request.form.get("address")
+
+        if existing_business_id:
+            related_business = TCPBusiness.get_or_none(TCPBusiness.id == existing_business_id)
+            new_relation = BusinessRelation.create(
+                business=business, related_business=related_business, type=relation_type
+            )
+        else:
+            new_relation = BusinessRelation.create(
+                business=business, name=name, phone=phone, email=email, address=address, type=relation_type
+            )
+
+        flash(f"{relation_type} agregado correctamente", "success")
+        return redirect(url_for("tcp-relacion.view_relations", business_id=business.id))
+
+    existing_businesses = TCPBusiness.select().where(TCPBusiness.id != business_id)
+    return render_template("business/add_relation.html", business=business, existing_businesses=existing_businesses)
+
+
+@relation_bp.route("/<int:business_id>")
+def view_relations(business_id):
+    business = TCPBusiness.get_or_none(TCPBusiness.id == business_id)
+    if not business:
+        flash("Negocio no encontrado", "danger")
+        return redirect(url_for("main.index"))
+
+    relations = BusinessRelation.select().where(BusinessRelation.business == business)
+    return render_template("business/view_relations.html", business=business, relations=relations)
+
+
+@edit_cl_prb_bp.route("/<int:relation_id>", methods=["GET", "POST"])
+def edit_relation(relation_id):
+    relation = BusinessRelation.get_or_none(BusinessRelation.id == relation_id)
+    if not relation:
+        flash("Relación no encontrada", "danger")
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        relation.name = request.form.get("name")
+        relation.phone = request.form.get("phone")
+        relation.email = request.form.get("email")
+        relation.address = request.form.get("address")
+        relation.save()
+
+        flash("Cliente/Proveedor actualizado correctamente", "success")
+        return redirect(url_for("tcp-relacion.view_relations", business_id=relation.business.id))
+
+    return render_template("business/edit_relation.html", relation=relation)
+
+
+@relation_bp.route("/relation/<int:relation_id>/delete", methods=["POST"])
+def delete_relation(relation_id):
+    relation = BusinessRelation.get_or_none(BusinessRelation.id == relation_id)
+    if not relation:
+        flash("Relación no encontrada", "danger")
+    else:
+        relation.delete_instance()
+        flash("Cliente/Proveedor eliminado correctamente", "success")
+
+    return redirect(url_for("tcp-relacion.view_relations", business_id=relation.business.id))

@@ -38,7 +38,8 @@ def create_app():
     from app.routes.user.routes import user_bp
     from app.routes.user.detalle_usuario import detalle_bp
     from app.routes.main.routes import main_bp
-    from app.routes.tcp.routes_tcp import tcp_bp
+    from app.routes.tcp.routes_tcp import tcp_bp, relation_bp,agreg_cl_prb_bp, edit_cl_prb_bp
+    from app.routes.facturas.routes import facturas_bp,facturas_copra_bp,facturas_venta_bp
     from app.routes.tcp.tarifas_tcp import tarifas_bp
     from app.routes.inventario.routes import inventario_bp
     from app.routes.ficha_costo.routes import ficha_bp, ver_ficha_dp
@@ -48,6 +49,11 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(detalle_bp, url_prefix='/user/detalles')
     app.register_blueprint(tcp_bp, url_prefix='/tcp')
+    app.register_blueprint(relation_bp, url_prefix='/tcp-manager/ver')
+    app.register_blueprint(agreg_cl_prb_bp, url_prefix='/tcp-manager/crear')
+    app.register_blueprint(edit_cl_prb_bp, url_prefix='/tcp-manager/editar')
+    app.register_blueprint(facturas_venta_bp, url_prefix='/tcp/factura-venta')
+    app.register_blueprint(facturas_copra_bp, url_prefix='/tcp/factura-compra')
     app.register_blueprint(tarifas_bp, url_prefix='/tcp/tarifas')
     app.register_blueprint(inventario_bp, url_prefix='/tcp/inventario')
     app.register_blueprint(ficha_bp, url_prefix='/ficha-costo')
