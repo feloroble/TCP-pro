@@ -1,11 +1,13 @@
 from peewee import *
 
-from app.models.facturas import Cuenta, Comprobante, ComprobanteDetalle, Factura,Cliente,Proveedor, Venta,Compra,DetalleFactura
-from app.models.tcp import BusinessRelation
-from app.database import DATABASE
+from app.models.user import User, Operation
+from app.models.tcp import  TCPBusiness , BusinessRelation
+from app.models.inventario import Category,SubCategory,Product,CostSheet,ConceptType,Concept
+from app.config import DATABASE
+
 
 
 db = MySQLDatabase(DATABASE)
 
 
-db.create_tables([BusinessRelation ])
+db.create_tables([Concept])

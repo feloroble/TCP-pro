@@ -7,8 +7,8 @@ SECURITY_PASSWORD_SALT = 'qC£!mH&q7_A0hr43b£-xQ/944G8vN8ek`U\~}HZt'
 DATABASE = {
         'name': 'tcp_db',
         'engine': 'peewee.MySQLDatabase',
-        'user': 'tactil',
-        'password': 'Charlotte2024*',
+        'user': 'root',
+        'password': 'frroble91',
         'host': 'localhost',
         'port': 3306,
     }
